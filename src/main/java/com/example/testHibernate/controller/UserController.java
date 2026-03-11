@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = {"http://localhost:3000", "https://https://web-fontend-nhom4-thu5-ca3.vercel.app"})
+@CrossOrigin(origins = {"http://localhost:3000", "https://web-fontend-nhom4-thu5-ca3.vercel.app"})
 @RestController
 public class UserController {
     @Autowired
