@@ -10,17 +10,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://localhost:3000", "https://your-app.com"})
 @RestController
 public class UserController {
     @Autowired
     private UsersService userService;
 
     @PostMapping("users/save")
-    public ApiResponse<String> saveUser(@RequestBody UserRequest users) {
-        userService.saveUser(users,true);
-        return ApiResponse.<String>builder()
-                .data(users.toString())
+    public ApiResponse<UserRequest> saveUser(@RequestBody UserRequest users) {
+        return ApiResponse.<UserRequest>builder()
+                .data(userService.saveUser(users,true))
                 .code(1001)
                 .build();
     }
@@ -38,7 +37,7 @@ public class UserController {
     public ApiResponse<String> deleteUser(@RequestBody UserRequest users) {
         userService.deleteUser(users);
         return ApiResponse.<String>builder()
-                .data(users.toString())
+                .data(users.getId())
                 .code(1001)
                 .build();
     }
