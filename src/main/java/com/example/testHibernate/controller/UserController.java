@@ -1,5 +1,6 @@
 package com.example.testHibernate.controller;
 
+import com.example.testHibernate.dto.UserResponse;
 import com.example.testHibernate.entity.Users;
 import com.example.testHibernate.dto.UserRequest;
 import com.example.testHibernate.response.ApiResponse;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "https://web-fontend-nhom4-thu5-ca3.vercel.app")
+@CrossOrigin(origins = "*")
 @RestController
 public class UserController {
     @Autowired
@@ -25,10 +26,10 @@ public class UserController {
     }
 
     @PutMapping("users/update")
-    public ApiResponse<String> updateUser(@RequestBody UserRequest users) {
-        userService.saveUser(users,false);
-        return ApiResponse.<String>builder()
-                .data(users.toString())
+    public ApiResponse<UserRequest> updateUser(@RequestBody UserRequest users) {
+
+        return ApiResponse.<UserRequest>builder()
+                .data(userService.saveUser(users,false))
                 .code(1001)
                 .build();
     }
@@ -47,6 +48,14 @@ public class UserController {
         return ApiResponse.<List<Users>>builder()
                 .data(userService.findAllUsers())
                 .code(1001)
+                .build();
+    }
+
+    @GetMapping("/users/{id}")
+    public ApiResponse<UserResponse> findUserById(@PathVariable(name = "id") String id) {
+        return ApiResponse.<UserResponse>builder()
+                .code(1001)
+                .data(userService.getUserById(Integer.parseInt(id)))
                 .build();
     }
 }
