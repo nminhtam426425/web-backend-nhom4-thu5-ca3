@@ -21,4 +21,10 @@ public class Users {
     private  String phone;
     private  String email;
 
+//    Cái này Bảo thêm để phân quyền
+    @Column(name = "role_id")
+    private Integer roleId;
+
+    @Column(name = "is_active")
+    private Boolean isActive;
 }

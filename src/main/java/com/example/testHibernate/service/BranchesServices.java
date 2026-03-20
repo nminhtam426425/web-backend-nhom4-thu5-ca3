@@ -1,6 +1,8 @@
 package com.example.testHibernate.service;
 
+import com.example.testHibernate.dto.BranchUpdateRequest;
 import com.example.testHibernate.entity.Branches;
+import com.example.testHibernate.entity.Users;
 import com.example.testHibernate.repo.BranchesDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,12 +28,32 @@ public class BranchesServices {
         b.setDescription(newB.getDescription());
         return repo.save(b);
     }
-    public void delete(Integer id){
+    public void delete(Integer id, Users currentUser){
+        if(currentUser.getRoleId() != 1){
+            throw new RuntimeException("Không có quyền xóa");
+        }
         repo.deleteById(id);
     }
     public void hide(Integer id){
         Branches b = repo.findById(id).orElseThrow(()->new RuntimeException("Not Found"));
         b.setIsActive(false);
         repo.save(b);
+    }
+//    Hàm cập nhật thông tin cho chi nhánh
+    public Branches updateInfo(Integer id, BranchUpdateRequest req){
+        Branches b = repo.findById(id).orElseThrow(()-> new RuntimeException("Branch not found"));
+        if(req.getAddress() != null){
+            b.setAddress(req.getAddress());
+        }
+        if(req.getPhone() != null){
+            b.setPhone(req.getPhone());
+        }
+        if(req.getEmail() != null){
+            b.setEmail(req.getEmail());
+        }
+        if(req.getDescription() != null){
+            b.setDescription(req.getDescription());
+        }
+        return  repo.save(b);
     }
 }
