@@ -17,7 +17,7 @@ public class UserController {
     @Autowired
     private UsersService userService;
 
-    @PostMapping("users/save")
+    @PostMapping("/users/save")
     public ApiResponse<UserRequest> saveUser(@RequestBody UserRequest users) {
         return ApiResponse.<UserRequest>builder()
                 .data(userService.saveUser(users,true))
@@ -25,7 +25,7 @@ public class UserController {
                 .build();
     }
 
-    @PutMapping("users/update")
+    @PutMapping("/users/update")
     public ApiResponse<UserRequest> updateUser(@RequestBody UserRequest users) {
 
         return ApiResponse.<UserRequest>builder()
@@ -57,5 +57,30 @@ public class UserController {
                 .code(1001)
                 .data(userService.getUserById(Integer.parseInt(id)))
                 .build();
+    }
+
+//    Api khóa tài khoản khách (Bảo)
+    @PutMapping("/users/disable/{id}")
+    public ApiResponse<String> disableUser(@PathVariable String id){
+        userService.disableUser(id);
+        return ApiResponse.<String>builder().data("User disabled").code(1001).build();
+    }
+    //  Api mở tài khoản khách (Bảo)
+    @PutMapping("/users/enable/{id}")
+    public ApiResponse<String> enableUser(@PathVariable String id){
+        userService.enableUser(id);
+        return ApiResponse.<String>builder().data("User enabled").code(1001).build();
+    }
+//    Api lấy tất cả nhân viên (Bảo)
+    @GetMapping("/staff")
+    public ApiResponse<List<Users>> getAllStaffs(){
+        return ApiResponse.<List<Users>>builder().data(userService.findAllStaffs()).code(1001).build();
+    }
+    @PostMapping("/staff")
+    public ApiResponse<String> createStaff(
+            @RequestBody UserRequest user,
+            @RequestParam Integer branchId){
+        userService.createStaff(user,branchId);
+        return ApiResponse.<String>builder().data("Create staff success").code(1001).build();
     }
 }
