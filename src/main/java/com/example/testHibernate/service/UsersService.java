@@ -17,20 +17,18 @@ public class UsersService{
     @Autowired
     private UsersDAO userDao;
     @Autowired
-    private UsersDAO usersDAO;
-    @Autowired
     private StaffsDAO staffsDAO;
 
     private boolean validateName(String name){
-        return !name.isEmpty();
+        return name != null && !name.trim().isEmpty();
     }
 
     private boolean validatePhone(String phone){
-        return phone.length() == 10;
+        return phone != null && phone.matches("\\d{10}");
     }
 
     private void validateUser(UserRequest users,boolean isSave) {
-        if(!validateName(users.getName()))
+        if(!validateName(users.getFullName()))
             throw new RuntimeException("Tên không được để rỗng !");
 
         if(!validatePhone(users.getPhone()))
@@ -41,23 +39,42 @@ public class UsersService{
     }
 
     public UserRequest saveUser(UserRequest user,boolean isSave) {
-        Users newUser = new Users();
-        if(!isSave)
-            newUser.setId(user.getId());
+        validateUser(user,isSave);
 
-        newUser.setName(user.getName());
-        newUser.setPhone(user.getPhone());
-        newUser.setEmail(user.getEmail());
+        Users entity;
+        if(isSave){
+            entity = new Users();
+        }else {
+            String id = user.getId().trim();
+            entity = userDao.findById(id).orElseThrow(()->new RuntimeException("User not exist"));
+        }
+            entity.setUserId(user.getId());
+
+        // map FULL field
+       entity.setUsername(user.getUsername());
+        entity.setPassword(user.getPassword());
+        entity.setFullName(user.getFullName());
+        entity.setEmail(user.getEmail());
+        entity.setPhone(user.getPhone());
+        entity.setAddress(user.getAddress());
+        entity.setRoleId(user.getRoleId());
 
         validateUser(user,isSave);
-        userDao.save(newUser);
+        userDao.save(entity);
 
-        Users userFounded = userDao.findUsersByPhone(newUser.getPhone());
+        Users savedUser = userDao.findUsersByPhone(entity.getPhone());
+        if(savedUser == null){
+            throw new RuntimeException("Không tìm thấy user sau khi lưu !");
+        }
         return UserRequest.builder()
-                .id(userFounded.getId())
-                .name(userFounded.getName())
-                .phone(userFounded.getPhone())
-                .email(userFounded.getEmail())
+                .id(savedUser.getUserId())
+                .username(savedUser.getUsername())
+                .fullName(savedUser.getFullName())
+                .email(savedUser.getEmail())
+                .phone(savedUser.getPhone())
+                .address(savedUser.getAddress())
+                .roleId(savedUser.getRoleId())
+                .isActive(savedUser.getIsActive())
                 .build();
     }
 
@@ -69,16 +86,11 @@ public class UsersService{
         userDao.deleteById(users.getId());
     }
 
-    public UserResponse getUserById(int id){
-        if(id < 1)
-            throw new RuntimeException("Invalid Id !");
-        List<Users> users = usersDAO.findAll();
-        if(id >  users.size())
-            throw new RuntimeException("Invalid Id !");
-        Users user = users.get(id - 1);
+    public UserResponse getUserById(String id){
+        Users user = userDao.findById(id).orElseThrow(()->new RuntimeException("User not found"));
         return UserResponse.builder()
                 .id(id)
-                .name(user.getName())
+                .fullName(user.getFullName())
                 .phone(user.getPhone())
                 .email(user.getEmail())
                 .build();
@@ -123,15 +135,35 @@ public class UsersService{
     }
 //    Hàm tạo tài khoản nhân viên (Bảo)
     public void createStaff(UserRequest user,Integer branchId){
+        if(user.getFullName() == null || user.getFullName().trim().isEmpty()){
+            throw new RuntimeException("Tên không được bỏ trống");
+        }
+        String phone = user.getPhone();
+        if(phone != null){
+            phone = phone.trim();
+        }
+        if (phone == null || !phone.matches("^\\d{10}$")){
+            throw new RuntimeException("Số điện thoại không hợp lệ");
+        }
+        if(userDao.existsUsersByPhone(user.getPhone())){
+            throw new RuntimeException("Số điện thoại đã tồn tại");
+        }
+        if(user.getPassword() == null || user.getPassword().trim().isEmpty()){
+            throw new RuntimeException("Password không được để trống");
+        }
         Users newUser = new Users();
-        newUser.setName(user.getName());
-        newUser.setPhone(user.getPhone());
+        newUser.setUsername(user.getUsername());
+        newUser.setPassword(user.getPassword());
+        newUser.setFullName(user.getFullName());
+        newUser.setPhone(phone);
         newUser.setEmail(user.getEmail());
+        newUser.setAddress(user.getAddress());
         newUser.setRoleId(Role.STAFF.getValue());
+        newUser.setIsActive(true);
         Users saveUser = userDao.save(newUser);
 
         Staffs staff = new Staffs();
-        staff.setUserId(saveUser.getId());
+        staff.setUserId(saveUser.getUserId());
         staff.setBranchId(branchId);
         staffsDAO.save(staff);
     }

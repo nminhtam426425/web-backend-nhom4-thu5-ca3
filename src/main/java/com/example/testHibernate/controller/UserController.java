@@ -55,7 +55,7 @@ public class UserController {
     public ApiResponse<UserResponse> findUserById(@PathVariable(name = "id") String id) {
         return ApiResponse.<UserResponse>builder()
                 .code(1001)
-                .data(userService.getUserById(Integer.parseInt(id)))
+                .data(userService.getUserById(String.valueOf(id)))
                 .build();
     }
 

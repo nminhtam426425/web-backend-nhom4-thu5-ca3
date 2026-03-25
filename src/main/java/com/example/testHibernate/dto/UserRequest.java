@@ -11,7 +11,13 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserRequest {
     private String id;
-    private String name;
-    private String phone;
+    private String username;
+    private String password;
+    private String fullName;
     private String email;
+    private String phone;
+    private String address;
+    private Integer roleId;
+    private Boolean isActive;
+
 }
