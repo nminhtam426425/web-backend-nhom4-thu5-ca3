@@ -1,5 +1,6 @@
 package com.example.testHibernate.controller;
 
+import com.example.testHibernate.dto.BranchResponse;
 import com.example.testHibernate.dto.BranchUpdateRequest;
 import com.example.testHibernate.entity.Branches;
 import com.example.testHibernate.entity.Users;
@@ -7,10 +8,13 @@ import com.example.testHibernate.repo.UsersDAO;
 import com.example.testHibernate.response.ApiResponse;
 import com.example.testHibernate.service.BranchesServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin(origins = {"http://localhost:3000", "https://web-fontend-nhom4-thu5-ca3.vercel.app"})
 @RestController
 @RequestMapping("/branches")
 public class BranchController {
@@ -20,35 +24,46 @@ public class BranchController {
     private UsersDAO userDao;
 
     @GetMapping
-    public List<Branches> getAll(){
-        return services.getAll();
+    public ResponseEntity<List<BranchResponse>> getAll(){
+        List<BranchResponse> branches = services.getAll();
+        return ResponseEntity.ok(branches);
     }
 
     @PostMapping
-    public Branches create(@RequestBody Branches b,@RequestParam String userId)
+    public ResponseEntity<Branches> create(@RequestBody Branches b,@RequestParam String userId)
     {
         Users user = userDao.findById(userId).orElseThrow();
         if(user.getRoleId() != 1){
             throw new RuntimeException("Chỉ admin mới cho tạo");
         }
-        return services.create(b);
+        Branches created = services.create(b);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public Branches update(@PathVariable Integer id,@RequestBody Branches b){
-        return  services.update(id,b);
+    public ResponseEntity<Branches> update(@PathVariable Integer id,@RequestBody Branches b){
+        Branches updatedBranches = services.update(id,b);
+        return ResponseEntity.ok(updatedBranches);
     }
     @DeleteMapping("/{id}")
-    public String delete(@PathVariable Integer id,@RequestParam String userId){
+    public ResponseEntity<String> delete(@PathVariable Integer id,@RequestParam String userId){
         Users user = userDao.findById(userId).orElseThrow(()-> new RuntimeException("User not found"));
-        services.delete(id,user);
-        return "Deleted";
+        try {
+            services.delete(id,user);
+            return ResponseEntity.ok("Đã xóa chi nhánh có id "+id+" thành công");
+        }catch (DataIntegrityViolationException e){
+            return ResponseEntity.badRequest().body(
+                    "Không thể xóa vì dữ liệu ràng buộc ở bảng khác"
+            );
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 
     @PutMapping("/hide/{id}")
-    public String hide(@PathVariable Integer id){
+    public ResponseEntity<String> hide(@PathVariable Integer id){
         services.hide(id);
-        return "Hidden";
+        return ResponseEntity.ok("Đã ẩn chi nhánh có id "+id);
     }
     @PutMapping("/update-info/{id}")
     public ApiResponse<Branches> updateInfo(
@@ -56,6 +71,6 @@ public class BranchController {
             @RequestBody BranchUpdateRequest req
             ) {
         Branches updatedB = services.updateInfo(id,req);
-        return new ApiResponse<>(updatedB,200,"Update success");
+        return new ApiResponse<>(updatedB,200,"Cập nhật thành công chi nhánh có id "+id);
     }
 }

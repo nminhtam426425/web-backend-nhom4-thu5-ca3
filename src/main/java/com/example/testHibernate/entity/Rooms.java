@@ -3,7 +3,8 @@ package com.example.testHibernate.entity;
 import com.example.testHibernate.enums.RoomStatus;
 import jakarta.persistence.*;
 import lombok.Data;
-import tools.jackson.databind.annotation.JsonDeserialize;
+
+import java.util.List;
 
 @Entity
 @Table(name ="rooms")
@@ -15,12 +16,19 @@ public class Rooms {
     private Integer roomId;
     @Column(name = "room_number")
     private String roomNumber;
-    @Column(name = "branch_id")
-    private Integer branchId;
     @Column(name = "type_id")
     private Integer typeId;
-
     @Column(name = "status")
     @Convert(converter = RoomStatusConverter.class)
     private RoomStatus status;
+    @ManyToOne
+    @JoinColumn(name = "branch_id")
+    private Branches branch;
+    @ManyToMany
+    @JoinTable(
+            name = "room_amenitites",
+            joinColumns = @JoinColumn(name = "id_room"),
+            inverseJoinColumns = @JoinColumn(name = "id_amenities")
+    )
+    private List<Amenities>amenitites;
 }

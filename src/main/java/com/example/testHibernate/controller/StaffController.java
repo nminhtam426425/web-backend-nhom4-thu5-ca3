@@ -4,12 +4,13 @@ import com.example.testHibernate.entity.Users;
 import com.example.testHibernate.response.ApiResponse;
 import com.example.testHibernate.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 
 import java.util.List;
-
+@CrossOrigin(origins = {"http://localhost:3000", "https://web-fontend-nhom4-thu5-ca3.vercel.app"})
 public class StaffController {
     @Autowired
     UsersService usersService;
