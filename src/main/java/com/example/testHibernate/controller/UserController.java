@@ -44,8 +44,8 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ApiResponse<List<Users>> findAllUsers() {
-        return ApiResponse.<List<Users>>builder()
+    public ApiResponse<List<UserResponse>> findAllUsers() {
+        return ApiResponse.<List<UserResponse>>builder()
                 .data(userService.findAllUsers())
                 .code(1001)
                 .build();
@@ -83,4 +83,12 @@ public class UserController {
         userService.createStaff(user,branchId);
         return ApiResponse.<String>builder().data("Create staff success").code(1001).build();
     }
+    @GetMapping("/users/disabled")
+    public ApiResponse<List<Users>> getDisabledUsers(){
+        return ApiResponse.<List<Users>>builder()
+                .data(userService.getAllDisabledUsers())
+                .code(1001)
+                .build();
+    }
+
 }

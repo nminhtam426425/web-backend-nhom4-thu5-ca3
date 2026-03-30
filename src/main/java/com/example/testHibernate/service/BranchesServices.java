@@ -10,7 +10,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BranchesServices {
@@ -18,21 +20,28 @@ public class BranchesServices {
     private BranchesDAO repo;
     @Autowired
     private RoomsDAO roomsDAO;
-    public BranchResponse toResponse(Branches branch){
-        Long totalRooms = roomsDAO.countByBranchId(branch.getBranchId());
-        return BranchResponse.builder()
-                .branchId(branch.getBranchId())
-                .branchName(branch.getBranchName())
-                .address(branch.getAddress())
-                .phone(branch.getPhone())
-                .email(branch.getEmail())
-                .description(branch.getDescription())
-                .isActive(branch.getIsActive())
-                .rooms(totalRooms)
-                .build();
-    }
     public List<BranchResponse>getAll(){
-        return  repo.findByIsActiveTrue().stream().map(this::toResponse).toList();
+        List<Branches> branches = repo.findByIsActiveTrue();
+        List<Object[]> data = roomsDAO.countRoomsByBranch();
+        Map<Integer,Long> roomMap = new HashMap<>();
+        for (Object[] row :data){
+            Integer branchId = (Integer) row[0];
+            Long count = (Long) row[1];
+            roomMap.put(branchId,count);
+        }
+        return branches.stream().map(b->{
+            Long totalRooms = roomMap.getOrDefault(b.getBranchId(),0L);
+            return BranchResponse.builder()
+                    .branchId(b.getBranchId())
+                    .branchName(b.getBranchName())
+                    .address(b.getAddress())
+                    .phone(b.getPhone())
+                    .email(b.getEmail())
+                    .description(b.getDescription())
+                    .isActive(b.getIsActive())
+                    .rooms(totalRooms)
+                    .build();
+        }).toList();
     }
     public Branches create(Branches b){
         return repo.save(b);

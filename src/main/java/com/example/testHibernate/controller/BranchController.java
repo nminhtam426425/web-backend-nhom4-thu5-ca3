@@ -61,9 +61,13 @@ public class BranchController {
     }
 
     @PutMapping("/hide/{id}")
-    public ResponseEntity<String> hide(@PathVariable Integer id){
+    public ResponseEntity<ApiResponse<String>> hide(@PathVariable Integer id,@RequestParam String userId){
+        Users user = userDao.findById(userId).orElseThrow(()->new RuntimeException("User not found"));
+        if(user.getRoleId() != 1){
+            throw new RuntimeException("User này không có quyền ẩn chi nhánh");
+        }
         services.hide(id);
-        return ResponseEntity.ok("Đã ẩn chi nhánh có id "+id);
+        return ResponseEntity.ok(new ApiResponse<>(null,200,"Đã ẩn chi nhánh có id "+id));
     }
     @PutMapping("/update-info/{id}")
     public ApiResponse<Branches> updateInfo(

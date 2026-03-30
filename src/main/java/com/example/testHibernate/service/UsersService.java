@@ -10,7 +10,9 @@ import com.example.testHibernate.dto.UserRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.MessageDigest;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UsersService{
@@ -37,9 +39,23 @@ public class UsersService{
         if(userDao.existsUsersByPhone(users.getPhone()) && isSave)
             throw new RuntimeException("Số điện thoại đã tồn tại !");
     }
-
+//    Hàm mã hóa md5(dành cho password)
+    public String encodeMD5(String input){
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] messageDigest = md.digest(input.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : messageDigest){
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        }catch (Exception e){
+            throw new RuntimeException("Lỗi mã hóa");
+        }
+    }
     public UserRequest saveUser(UserRequest user,boolean isSave) {
-        validateUser(user,isSave);
 
         Users entity;
         if(isSave){
@@ -48,16 +64,16 @@ public class UsersService{
             String id = user.getId().trim();
             entity = userDao.findById(id).orElseThrow(()->new RuntimeException("User not exist"));
         }
-            entity.setUserId(user.getId());
 
         // map FULL field
        entity.setUsername(user.getUsername());
-        entity.setPassword(user.getPassword());
+        entity.setPassword(encodeMD5(user.getPassword()));
         entity.setFullName(user.getFullName());
         entity.setEmail(user.getEmail());
         entity.setPhone(user.getPhone());
         entity.setAddress(user.getAddress());
         entity.setRoleId(user.getRoleId());
+        entity.setIsActive(true);
 
         validateUser(user,isSave);
         userDao.save(entity);
@@ -76,10 +92,23 @@ public class UsersService{
                 .roleId(savedUser.getRoleId())
                 .isActive(savedUser.getIsActive())
                 .build();
+
     }
 
-    public List<Users> findAllUsers() {
-        return userDao.findAll();
+    public List<UserResponse> findAllUsers() {
+        return userDao.findByRoleId(Role.USER.getValue())
+                .stream()
+                .map(user -> UserResponse.builder()
+                        .id(user.getUserId())
+                        .username(user.getUsername())
+                        .fullName(user.getFullName())
+                        .email(user.getEmail())
+                        .phone(user.getPhone())
+                        .address(user.getAddress())
+                        .roleId(user.getRoleId())
+                        .isActive(user.getIsActive())
+                        .build())
+                .toList();
     }
 
     public void deleteUser(UserRequest users) {
@@ -89,10 +118,13 @@ public class UsersService{
     public UserResponse getUserById(String id){
         Users user = userDao.findById(id).orElseThrow(()->new RuntimeException("User not found"));
         return UserResponse.builder()
-                .id(id)
+                .id(id).username(user.getUsername())
                 .fullName(user.getFullName())
                 .phone(user.getPhone())
                 .email(user.getEmail())
+                .address(user.getAddress())
+                .roleId(user.getRoleId())
+                .isActive(user.getIsActive())
                 .build();
     }
 //    Hàm khóa tài khoản khách (Bảo)
@@ -135,8 +167,14 @@ public class UsersService{
     }
 //    Hàm tạo tài khoản nhân viên (Bảo)
     public void createStaff(UserRequest user,Integer branchId){
+        if(branchId == null){
+            throw new RuntimeException("branchId không được bỏ trống");
+        }
         if(user.getFullName() == null || user.getFullName().trim().isEmpty()){
             throw new RuntimeException("Tên không được bỏ trống");
+        }
+        if(user.getPassword() == null || user.getPassword().trim().isEmpty()){
+            throw new RuntimeException("Password không được để trống");
         }
         String phone = user.getPhone();
         if(phone != null){
@@ -153,18 +191,33 @@ public class UsersService{
         }
         Users newUser = new Users();
         newUser.setUsername(user.getUsername());
-        newUser.setPassword(user.getPassword());
+        newUser.setPassword(encodeMD5(user.getPassword()));
         newUser.setFullName(user.getFullName());
         newUser.setPhone(phone);
         newUser.setEmail(user.getEmail());
         newUser.setAddress(user.getAddress());
         newUser.setRoleId(Role.STAFF.getValue());
         newUser.setIsActive(true);
-        Users saveUser = userDao.save(newUser);
+
+        Users savedUser = userDao.save(newUser);
+        if(savedUser.getUserId() == null){
+            throw new RuntimeException("User ID bị NULL");
+        }
 
         Staffs staff = new Staffs();
-        staff.setUserId(saveUser.getUserId());
+        staff.setUserId(savedUser.getUserId());
         staff.setBranchId(branchId);
         staffsDAO.save(staff);
+    }
+    public List<Users> getStaffByBranch(Integer branchId){
+        return staffsDAO.findStaffByBranchId(branchId);
+    }
+    public List<Users> getAllDisabledUsers(){
+        return userDao.findByIsActiveFalse();
+    }
+    public List<Users> getDisabledStaffs(){
+        return userDao.findAll().stream()
+                .filter(u -> u.getRoleId() == 2 && Boolean.FALSE.equals(u.getIsActive()))
+                .toList();
     }
 }

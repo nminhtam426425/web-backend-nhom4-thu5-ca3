@@ -10,4 +10,5 @@ public interface UsersDAO extends JpaRepository<Users, String> {
 
     Users findUsersByPhone(String phone);
     List<Users> findByRoleId(Integer roleId);
+    List<Users> findByIsActiveFalse();
 }

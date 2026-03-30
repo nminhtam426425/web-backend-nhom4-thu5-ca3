@@ -1,5 +1,6 @@
 package com.example.testHibernate.controller;
 
+import com.example.testHibernate.dto.RoomTypeResponse;
 import com.example.testHibernate.dto.RoomTypeUpdateRequest;
 import com.example.testHibernate.entity.RoomTypes;
 import com.example.testHibernate.service.RoomTypesService;
@@ -16,8 +17,8 @@ public class RoomTypeController {
     @Autowired
     private RoomTypesService roomTypesService;
     @GetMapping
-    public ResponseEntity<List<RoomTypes>>getAll(){
-        List<RoomTypes> roomTypes =  roomTypesService.getAll();
+    public ResponseEntity<List<RoomTypeResponse>>getAll(){
+        List<RoomTypeResponse> roomTypes =  roomTypesService.getAll();
         return ResponseEntity.ok(roomTypes);
     }
     @PostMapping
