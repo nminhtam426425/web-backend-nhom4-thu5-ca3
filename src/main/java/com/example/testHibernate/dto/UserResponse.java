@@ -19,4 +19,5 @@ public class UserResponse {
     private Integer roleId;
     private Boolean isActive;
     private Double alreadySpent;
+    private Integer branchId;
 }

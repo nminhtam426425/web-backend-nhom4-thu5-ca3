@@ -112,8 +112,7 @@ public class UsersService{
                         .phone(user.getPhone())
                         .address(user.getAddress())
                         .roleId(user.getRoleId())
-                        .isActive(user.getIsActive())
-                          .alreadySpent(total)
+                        .isActive(user.getIsActive()).alreadySpent(total)
                         .build();})
                 .toList();
     }
@@ -170,8 +169,24 @@ public class UsersService{
         return userDao.findByRoleId(roleId);
     }
 //    Hàm lọc tất cả nhân viên (Bảo)
-    public List<Users> findAllStaffs(){
-        return findByRoleId(Role.STAFF.getValue());
+    public List<UserResponse> findAllStaffs(){
+        return findByRoleId(Role.STAFF.getValue())
+                .stream().filter(u->Boolean.TRUE.equals(u.getIsActive()))
+                .map(u->{
+                    Staffs staff = staffsDAO.findById(u.getUserId()).orElse(null);
+                    return UserResponse.builder()
+                            .id(u.getUserId())
+                            .username(u.getUsername())
+                            .fullName(u.getFullName())
+                            .email(u.getEmail())
+                            .phone(u.getPhone())
+                            .address(u.getAddress())
+                            .roleId(u.getRoleId())
+                            .isActive(u.getIsActive())
+                            .branchId(staff != null ? staff.getBranchId():null)
+                            .build();
+                }).toList();
+
     }
 //    Hàm tạo tài khoản nhân viên (Bảo)
     public void createStaff(UserRequest user,Integer branchId){
@@ -228,6 +243,7 @@ public class UsersService{
                         .address(u.getAddress())
                         .roleId(u.getRoleId())
                         .isActive(u.getIsActive())
+                        .branchId(branchId)
                         .build()).toList();
     }
     public List<Users> getAllDisabledUsers(){

@@ -73,8 +73,8 @@ public class UserController {
     }
 //    Api lấy tất cả nhân viên (Bảo)
     @GetMapping("/staff")
-    public ApiResponse<List<Users>> getAllStaffs(){
-        return ApiResponse.<List<Users>>builder().data(userService.findAllStaffs()).code(1001).build();
+    public ApiResponse<List<UserResponse>> getAllStaffs(){
+        return ApiResponse.<List<UserResponse>>builder().data(userService.findAllStaffs()).code(1001).build();
     }
     @PostMapping("/staff")
     public ApiResponse<String> createStaff(
