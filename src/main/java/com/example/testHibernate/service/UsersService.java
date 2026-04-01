@@ -105,7 +105,7 @@ public class UsersService{
                             BookingStatus.CHECKOUT
                     );
                   return  UserResponse.builder()
-                        .id(user.getUserId())
+                        .userId(user.getUserId())
                         .username(user.getUsername())
                         .fullName(user.getFullName())
                         .email(user.getEmail())
@@ -125,7 +125,7 @@ public class UsersService{
         Users user = userDao.findById(id).filter(u->u.getRoleId().equals(Role.USER.getValue()) &&
         Boolean.TRUE.equals(u.getIsActive() )).orElseThrow(()->new RuntimeException("User not found"));
         return UserResponse.builder()
-                .id(id).username(user.getUsername())
+                .userId(id).username(user.getUsername())
                 .fullName(user.getFullName())
                 .phone(user.getPhone())
                 .email(user.getEmail())
@@ -175,7 +175,7 @@ public class UsersService{
                 .map(u->{
                     Staffs staff = staffsDAO.findById(u.getUserId()).orElse(null);
                     return UserResponse.builder()
-                            .id(u.getUserId())
+                            .userId(u.getUserId())
                             .username(u.getUsername())
                             .fullName(u.getFullName())
                             .email(u.getEmail())
@@ -235,7 +235,7 @@ public class UsersService{
     public List<UserResponse> getStaffByBranch(Integer branchId){
         return staffsDAO.findStaffByBranchId(branchId).stream()
                 .map(u->UserResponse.builder()
-                        .id(u.getUserId())
+                        .userId(u.getUserId())
                         .username(u.getUsername())
                         .fullName(u.getFullName())
                         .email(u.getEmail())
