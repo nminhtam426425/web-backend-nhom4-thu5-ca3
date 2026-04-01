@@ -98,7 +98,7 @@ public class UsersService{
 
     public List<UserResponse> findAllUsers() {
         return userDao.findByRoleId(Role.USER.getValue())
-                .stream()
+                .stream().filter(u->Boolean.TRUE.equals(u.getIsActive()))
                 .map(user ->{
                     Double total = userDao.getTotalSpentByUserId(
                             user.getUserId(),
@@ -123,7 +123,8 @@ public class UsersService{
     }
 
     public UserResponse getUserById(String id){
-        Users user = userDao.findById(id).orElseThrow(()->new RuntimeException("User not found"));
+        Users user = userDao.findById(id).filter(u->u.getRoleId().equals(Role.USER.getValue()) &&
+        Boolean.TRUE.equals(u.getIsActive() )).orElseThrow(()->new RuntimeException("User not found"));
         return UserResponse.builder()
                 .id(id).username(user.getUsername())
                 .fullName(user.getFullName())
