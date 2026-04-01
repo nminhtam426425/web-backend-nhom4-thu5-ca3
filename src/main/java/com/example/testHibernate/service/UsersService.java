@@ -3,6 +3,7 @@ package com.example.testHibernate.service;
 import com.example.testHibernate.dto.UserResponse;
 import com.example.testHibernate.entity.Staffs;
 import com.example.testHibernate.entity.Users;
+import com.example.testHibernate.enums.BookingStatus;
 import com.example.testHibernate.enums.Role;
 import com.example.testHibernate.repo.StaffsDAO;
 import com.example.testHibernate.repo.UsersDAO;
@@ -98,7 +99,12 @@ public class UsersService{
     public List<UserResponse> findAllUsers() {
         return userDao.findByRoleId(Role.USER.getValue())
                 .stream()
-                .map(user -> UserResponse.builder()
+                .map(user ->{
+                    Double total = userDao.getTotalSpentByUserId(
+                            user.getUserId(),
+                            BookingStatus.CHECKOUT
+                    );
+                  return  UserResponse.builder()
                         .id(user.getUserId())
                         .username(user.getUsername())
                         .fullName(user.getFullName())
@@ -107,7 +113,8 @@ public class UsersService{
                         .address(user.getAddress())
                         .roleId(user.getRoleId())
                         .isActive(user.getIsActive())
-                        .build())
+                          .alreadySpent(total)
+                        .build();})
                 .toList();
     }
 
@@ -209,11 +216,23 @@ public class UsersService{
         staff.setBranchId(branchId);
         staffsDAO.save(staff);
     }
-    public List<Users> getStaffByBranch(Integer branchId){
-        return staffsDAO.findStaffByBranchId(branchId);
+    public List<UserResponse> getStaffByBranch(Integer branchId){
+        return staffsDAO.findStaffByBranchId(branchId).stream()
+                .map(u->UserResponse.builder()
+                        .id(u.getUserId())
+                        .username(u.getUsername())
+                        .fullName(u.getFullName())
+                        .email(u.getEmail())
+                        .phone(u.getPhone())
+                        .address(u.getAddress())
+                        .roleId(u.getRoleId())
+                        .isActive(u.getIsActive())
+                        .build()).toList();
     }
     public List<Users> getAllDisabledUsers(){
-        return userDao.findByIsActiveFalse();
+        return userDao.findAll().stream()
+                .filter(u->u.getRoleId()==3 && Boolean.FALSE.equals(u.getIsActive()))
+                .toList();
     }
     public List<Users> getDisabledStaffs(){
         return userDao.findAll().stream()

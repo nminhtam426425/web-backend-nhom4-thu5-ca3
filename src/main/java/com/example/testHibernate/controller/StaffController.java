@@ -1,5 +1,6 @@
 package com.example.testHibernate.controller;
 
+import com.example.testHibernate.dto.UserResponse;
 import com.example.testHibernate.entity.Users;
 import com.example.testHibernate.response.ApiResponse;
 import com.example.testHibernate.service.UsersService;
@@ -23,9 +24,10 @@ public class StaffController {
         usersService.enableStaff(id);
         return ApiResponse.<String>builder().data("Staff enabled").code(1001).build();
     }
+//    Truyền id chi nhánh trả về danh sách các staff  tương ứng.
     @GetMapping("/staff/branch/{branchId}")
-    public ApiResponse<List<Users>>getStaffByBranch(@PathVariable Integer branchId){
-            return ApiResponse.<List<Users>>builder().data(usersService.getStaffByBranch(branchId)).code(1001).build();
+    public ApiResponse<List<UserResponse>>getStaffByBranch(@PathVariable Integer branchId){
+            return ApiResponse.<List<UserResponse>>builder().data(usersService.getStaffByBranch(branchId)).code(1001).build();
     }
     @GetMapping("/staff/disabled")
     public ApiResponse<List<Users>> getDisabledStaffs(){

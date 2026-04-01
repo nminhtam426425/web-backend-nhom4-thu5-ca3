@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "branches")
 @Data
@@ -33,4 +35,6 @@ public class Branches {
 
     @Column(name = "is_active")
     private Boolean isActive = true;
+    @ManyToMany(mappedBy = "branches")
+    private List<RoomTypes> roomTypes;
 }

@@ -1,5 +1,6 @@
 package com.example.testHibernate.controller;
 
+import com.example.testHibernate.dto.RoomTypeCreateRequest;
 import com.example.testHibernate.dto.RoomTypeResponse;
 import com.example.testHibernate.dto.RoomTypeUpdateRequest;
 import com.example.testHibernate.entity.RoomTypes;
@@ -22,20 +23,20 @@ public class RoomTypeController {
         return ResponseEntity.ok(roomTypes);
     }
     @PostMapping
-    public ResponseEntity<RoomTypes> create(@RequestBody RoomTypes rt){
-        RoomTypes createdRoomTypes= roomTypesService.create(rt);
+    public ResponseEntity<RoomTypeResponse> create(@RequestBody RoomTypeCreateRequest rt){
+        RoomTypeResponse createdRoomTypes= roomTypesService.create(rt);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdRoomTypes);
     }
     @PatchMapping("/{id}/baseprice-capacity")
-    public ResponseEntity<RoomTypes>updateBasePriceAndCapacity(
+    public ResponseEntity<RoomTypeResponse>updateBasePriceAndCapacity(
             @PathVariable Integer id,
             @RequestBody RoomTypeUpdateRequest req){
-        RoomTypes update = roomTypesService.updatePriceAndCapacity(id,req);
+        RoomTypeResponse update = roomTypesService.updatePriceAndCapacity(id,req);
         return ResponseEntity.ok(update);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<RoomTypes>update(@PathVariable Integer id,@RequestBody RoomTypes rt){
-        RoomTypes updateRoomType = roomTypesService.update(id,rt);
+    public ResponseEntity<RoomTypeResponse>update(@PathVariable Integer id,@RequestBody RoomTypeUpdateRequest rt){
+        RoomTypeResponse updateRoomType = roomTypesService.update(id,rt);
         return ResponseEntity.ok(updateRoomType);
     }
     @DeleteMapping("/{id}")
@@ -43,5 +44,9 @@ public class RoomTypeController {
         roomTypesService.delete(id);
         return ResponseEntity.ok("Xóa loại phòng với id "+id+" thành công!");
     }
-
+//    Truyền id chi nhánh trả về danh sách các loại phòng  tương ứng
+    @GetMapping("/by-branch/{branchId}")
+    public ResponseEntity<List<RoomTypeResponse>> getByBranch(@PathVariable Integer branchId){
+        return ResponseEntity.ok(roomTypesService.getRoomTypesByBranch(branchId));
+    }
 }

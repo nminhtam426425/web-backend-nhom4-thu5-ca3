@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "room_types")
@@ -29,4 +30,13 @@ public class RoomTypes {
     private Double priceHour;
     @Column(name = "capacity",nullable = false)
     private Integer capacity;
+    @ManyToMany
+    @JoinTable(
+            name = "room_types_branches",
+            joinColumns = @JoinColumn(name = "id_room_type"),
+            inverseJoinColumns = @JoinColumn(name = "id_branches")
+    )
+    private List<Branches> branches;
+    @OneToMany(mappedBy = "roomType",cascade = CascadeType.ALL)
+    private List<RoomImages> images;
 }
