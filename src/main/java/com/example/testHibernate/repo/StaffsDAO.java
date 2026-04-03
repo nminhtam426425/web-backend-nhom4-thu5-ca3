@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface StaffsDAO extends JpaRepository<Staffs,String> {
-    @Query("SELECT u FROM Users u JOIN Staffs s On u.userId = s.userId WHERE s.branchId = :branchId ")
+    @Query("SELECT u FROM Users u JOIN Staffs s On u.userId = s.userId WHERE s.branchId = :branchId and u.isActive = true")
     List<Users> findStaffByBranchId(Integer branchId);
 }

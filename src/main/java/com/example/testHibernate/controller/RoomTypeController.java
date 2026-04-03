@@ -4,6 +4,7 @@ import com.example.testHibernate.dto.RoomTypeCreateRequest;
 import com.example.testHibernate.dto.RoomTypeResponse;
 import com.example.testHibernate.dto.RoomTypeUpdateRequest;
 import com.example.testHibernate.entity.RoomTypes;
+import com.example.testHibernate.response.ApiResponse;
 import com.example.testHibernate.service.RoomTypesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -46,7 +47,13 @@ public class RoomTypeController {
     }
 //    Truyền id chi nhánh trả về danh sách các loại phòng  tương ứng
     @GetMapping("/by-branch/{branchId}")
-    public ResponseEntity<List<RoomTypeResponse>> getByBranch(@PathVariable Integer branchId){
-        return ResponseEntity.ok(roomTypesService.getRoomTypesByBranch(branchId));
+    public ResponseEntity<ApiResponse<List<RoomTypeResponse>>> getByBranch(@PathVariable Integer branchId){
+        List<RoomTypeResponse> roomTypeResponses = roomTypesService.getRoomTypesByBranch(branchId);
+        return ResponseEntity.ok(
+                ApiResponse.<List<RoomTypeResponse>>builder()
+                        .code(200)
+                        .data(roomTypeResponses)
+                        .build()
+        );
     }
 }

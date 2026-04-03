@@ -77,11 +77,11 @@ public class UserController {
         return ApiResponse.<List<UserResponse>>builder().data(userService.findAllStaffs()).code(1001).build();
     }
     @PostMapping("/staff")
-    public ApiResponse<String> createStaff(
+    public ApiResponse<UserResponse> createStaff(
             @RequestBody UserRequest user,
             @RequestParam Integer branchId){
-        userService.createStaff(user,branchId);
-        return ApiResponse.<String>builder().data("Create staff success").code(1001).build();
+        UserResponse userResponse = userService.createStaff(user,branchId);
+        return ApiResponse.<UserResponse>builder().data(userResponse).code(1001).build();
     }
     @GetMapping("/users/disabled")
     public ApiResponse<List<Users>> getDisabledUsers(){

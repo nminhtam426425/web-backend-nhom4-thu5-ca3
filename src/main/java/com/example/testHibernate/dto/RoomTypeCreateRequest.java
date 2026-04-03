@@ -16,4 +16,5 @@ public class RoomTypeCreateRequest {
     private Integer capacity;
     private List<String> images;
     private List<Integer> branchIds;
+    private List<Integer> amenities;
 }

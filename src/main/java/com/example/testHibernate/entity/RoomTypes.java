@@ -39,4 +39,11 @@ public class RoomTypes {
     private List<Branches> branches;
     @OneToMany(mappedBy = "roomType",cascade = CascadeType.ALL)
     private List<RoomImages> images;
+    @ManyToMany
+    @JoinTable(
+            name = "room_amenitites",
+            joinColumns = @JoinColumn(name = "id_room"),
+            inverseJoinColumns = @JoinColumn(name = "id_amenities")
+    )
+    private List<Amenities> amenities;
 }

@@ -18,5 +18,5 @@ public interface UsersDAO extends JpaRepository<Users, String> {
             "FROM Bookings b " +
             "WHERE b.customer.userId =:userId " +
             "AND b.status = status")
-    Double getTotalSpentByUserId(@Param("userId") String userId, @Param("status")BookingStatus status);
+    Double getTotalSpentByUserId(@Param("userId") String userId, @Param("status") BookingStatus status);
 }

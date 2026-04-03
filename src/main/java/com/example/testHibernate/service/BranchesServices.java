@@ -43,6 +43,29 @@ public class BranchesServices {
                     .build();
         }).toList();
     }
+    public List<BranchResponse>getAllDisabled(){
+        List<Branches> branches = repo.findByIsActiveFalse();
+        List<Object[]> data = roomsDAO.countRoomsByBranch();
+        Map<Integer,Long> roomMap = new HashMap<>();
+        for (Object[] row :data){
+            Integer branchId = (Integer) row[0];
+            Long count = (Long) row[1];
+            roomMap.put(branchId,count);
+        }
+        return branches.stream().map(b->{
+            Long totalRooms = roomMap.getOrDefault(b.getBranchId(),0L);
+            return BranchResponse.builder()
+                    .branchId(b.getBranchId())
+                    .branchName(b.getBranchName())
+                    .address(b.getAddress())
+                    .phone(b.getPhone())
+                    .email(b.getEmail())
+                    .description(b.getDescription())
+                    .isActive(b.getIsActive())
+                    .rooms(totalRooms)
+                    .build();
+        }).toList();
+    }
     public Branches create(Branches b){
         return repo.save(b);
     }

@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface BranchesDAO extends JpaRepository<Branches,Integer> {
     List<Branches> findByIsActiveTrue();
+    List<Branches> findByIsActiveFalse();
+
 }

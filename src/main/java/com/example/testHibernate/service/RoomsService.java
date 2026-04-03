@@ -3,10 +3,12 @@ package com.example.testHibernate.service;
 import com.example.testHibernate.dto.RoomRequest;
 import com.example.testHibernate.entity.Amenities;
 import com.example.testHibernate.entity.Branches;
+import com.example.testHibernate.entity.RoomTypes;
 import com.example.testHibernate.entity.Rooms;
 import com.example.testHibernate.enums.RoomStatus;
 import com.example.testHibernate.repo.AmenitiesDAO;
 import com.example.testHibernate.repo.BranchesDAO;
+import com.example.testHibernate.repo.RoomTypesDAO;
 import com.example.testHibernate.repo.RoomsDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,13 +23,16 @@ public class RoomsService {
     private BranchesDAO branchesDAO;
     @Autowired
     private AmenitiesDAO amenitiesDAO;
+    @Autowired
+    private RoomTypesDAO roomTypesDAO;
     public List<Rooms> getAll(){
         return  roomsDAO.findAll();
     }
     public Rooms create(RoomRequest req){
         Rooms r = new Rooms();
+        RoomTypes roomType = roomTypesDAO.findById(req.getTypeId()).orElseThrow(()-> new RuntimeException("RoomType not found"));
         r.setRoomNumber(req.getRoomNumber());
-        r.setTypeId(req.getTypeId());
+        r.setRoomTypes(roomType);
         if(req.getStatus() == null){
             r.setStatus(RoomStatus.EMPTY);
         }else {
@@ -46,7 +51,7 @@ public class RoomsService {
         Rooms r = roomsDAO.findById(id).orElseThrow(()->new RuntimeException("Room not found"));
         r.setRoomNumber(newRoom.getRoomNumber());
         r.setBranch(newRoom.getBranch());
-        r.setTypeId(newRoom.getTypeId());
+        r.setRoomTypes(newRoom.getRoomTypes());
         r.setStatus(newRoom.getStatus());
         return roomsDAO.save(r);
     }

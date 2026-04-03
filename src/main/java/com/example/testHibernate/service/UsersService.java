@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.security.MessageDigest;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class UsersService{
@@ -105,7 +104,7 @@ public class UsersService{
                             BookingStatus.CHECKOUT
                     );
                   return  UserResponse.builder()
-                        .id(user.getUserId())
+                        .userId(user.getUserId())
                         .username(user.getUsername())
                         .fullName(user.getFullName())
                         .email(user.getEmail())
@@ -121,11 +120,11 @@ public class UsersService{
         userDao.deleteById(users.getId());
     }
 
-    public UserResponse getUserById(String id){
-        Users user = userDao.findById(id).filter(u->u.getRoleId().equals(Role.USER.getValue()) &&
+    public UserResponse getUserById(String userId){
+        Users user = userDao.findById(userId).filter(u->u.getRoleId().equals(Role.USER.getValue()) &&
         Boolean.TRUE.equals(u.getIsActive() )).orElseThrow(()->new RuntimeException("User not found"));
         return UserResponse.builder()
-                .id(id).username(user.getUsername())
+                .userId(userId).username(user.getUsername())
                 .fullName(user.getFullName())
                 .phone(user.getPhone())
                 .email(user.getEmail())
@@ -175,7 +174,7 @@ public class UsersService{
                 .map(u->{
                     Staffs staff = staffsDAO.findById(u.getUserId()).orElse(null);
                     return UserResponse.builder()
-                            .id(u.getUserId())
+                            .userId(u.getUserId())
                             .username(u.getUsername())
                             .fullName(u.getFullName())
                             .email(u.getEmail())
@@ -189,7 +188,7 @@ public class UsersService{
 
     }
 //    Hàm tạo tài khoản nhân viên (Bảo)
-    public void createStaff(UserRequest user,Integer branchId){
+    public UserResponse createStaff(UserRequest user,Integer branchId){
         if(branchId == null){
             throw new RuntimeException("branchId không được bỏ trống");
         }
@@ -231,11 +230,23 @@ public class UsersService{
         staff.setUserId(savedUser.getUserId());
         staff.setBranchId(branchId);
         staffsDAO.save(staff);
+        return UserResponse.builder()
+                .userId(savedUser.getUserId())
+                .username(savedUser.getUsername())
+                .fullName(savedUser.getFullName())
+                .email(savedUser.getEmail())
+                .phone(savedUser.getPhone())
+                .address(savedUser.getAddress())
+                .roleId(savedUser.getRoleId())
+                .isActive(savedUser.getIsActive())
+                .branchId(branchId)
+                .alreadySpent(0.0)
+                .build();
     }
     public List<UserResponse> getStaffByBranch(Integer branchId){
         return staffsDAO.findStaffByBranchId(branchId).stream()
                 .map(u->UserResponse.builder()
-                        .id(u.getUserId())
+                        .userId(u.getUserId())
                         .username(u.getUsername())
                         .fullName(u.getFullName())
                         .email(u.getEmail())

@@ -21,4 +21,8 @@ public class RoomTypeResponse {
 
     private List<String> images;
     private List<Integer> branchIds;
+    private List<AmenityResponse> amenities;
+    private Integer totalRooms;
+    private Double revenue;
+    private List<RoomResponse> rooms;
 }

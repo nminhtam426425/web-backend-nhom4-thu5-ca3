@@ -16,8 +16,9 @@ public class Rooms {
     private Integer roomId;
     @Column(name = "room_number")
     private String roomNumber;
-    @Column(name = "type_id")
-    private Integer typeId;
+    @ManyToOne
+    @JoinColumn(name = "type_id")
+    private RoomTypes roomTypes;
     @Column(name = "status")
     @Convert(converter = RoomStatusConverter.class)
     private RoomStatus status;

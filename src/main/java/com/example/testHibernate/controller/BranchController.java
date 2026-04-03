@@ -28,7 +28,11 @@ public class BranchController {
         List<BranchResponse> branches = services.getAll();
         return ResponseEntity.ok(branches);
     }
-
+    @GetMapping("/disabled")
+    public ResponseEntity<List<BranchResponse>> getAllDisabled(){
+        List<BranchResponse> branches = services.getAllDisabled();
+        return ResponseEntity.ok(branches);
+    }
     @PostMapping
     public ResponseEntity<Branches> create(@RequestBody Branches b,@RequestParam String userId)
     {
