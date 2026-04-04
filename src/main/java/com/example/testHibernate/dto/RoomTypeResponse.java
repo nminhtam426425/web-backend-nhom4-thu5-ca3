@@ -19,7 +19,7 @@ public class RoomTypeResponse {
     private Double priceHour;
     private Integer capacity;
 
-    private List<String> images;
+    private List<RoomImageResponse> images;
     private List<Integer> branchIds;
     private List<AmenityResponse> amenities;
     private Integer totalRooms;

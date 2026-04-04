@@ -28,8 +28,13 @@ public class RoomTypesService {
     public List<RoomTypeResponse>getAll(){
         List<RoomTypes> roomTypes = roomTypesDAO.findAllWithImages();
         return roomTypes.stream().map(rt->{
-            List<String> images = rt.getImages().stream()
-                    .map(RoomImages::getImageUrl).toList();
+            List<RoomImageResponse> images = rt.getImages() != null
+                    ? rt.getImages().stream()
+                    .map(img -> new RoomImageResponse(
+                            img.getImageId(),
+                            img.getImageUrl()
+                    )).toList()
+                    : List.of();
             List<Integer> branchIds = rt.getBranches() != null
                     ? rt.getBranches().stream()
                     .map(Branches::getBranchId).toList()
@@ -60,10 +65,13 @@ public class RoomTypesService {
         return roomTypeBranchesDAO.findRoomTypesByBranchId(branchId)
                 .stream()
                 .map(rt->{
-                    List<String> images = roomImagesDAO
+                    List<RoomImageResponse> images = roomImagesDAO
                             .findByRoomType_TypeId(rt.getTypeId())
                             .stream()
-                            .map(RoomImages::getImageUrl)
+                            .map(r -> new RoomImageResponse(
+                                    r.getImageId(),
+                                    r.getImageUrl()
+                            ))
                             .toList();
                     List<Integer> branchIds = rt.getBranches() !=null ? rt.getBranches()
                             .stream().map(Branches::getBranchId).toList():List.of();
@@ -121,14 +129,18 @@ public class RoomTypesService {
         rt.setPriceHour(req.getPriceHour());
         rt.setCapacity(req.getCapacity());
         RoomTypes savedRoomTypes = roomTypesDAO.save(rt);
-        List<String>imageUrls = new ArrayList<>();
+        List<RoomImageResponse>images = new ArrayList<>();
         if (req.getImages() != null) {
             for (String url : req.getImages()) {
                 RoomImages img = new RoomImages();
                 img.setImageUrl(url);
                 img.setRoomType(savedRoomTypes);
+                RoomImages savedImg = roomImagesDAO.save(img);
                 roomImagesDAO.save(img);
-                imageUrls.add(url);
+                images.add(new RoomImageResponse(
+                        savedImg.getImageId(),
+                        savedImg.getImageUrl()
+                ));
             }
         }
         List<Integer> branchIds = new ArrayList<>();
@@ -156,7 +168,7 @@ public class RoomTypesService {
                 .pricePeakSunday(savedRoomTypes.getPricePeakSunday())
                 .priceHour(savedRoomTypes.getPriceHour())
                 .capacity(savedRoomTypes.getCapacity())
-                .images(imageUrls)
+                .images(images)
                 .branchIds(branchIds)
                 .amenities(amenities)
                 .build();
@@ -195,7 +207,7 @@ public class RoomTypesService {
             if (req.getCapacity() != null) {
                 rt.setCapacity(req.getCapacity());
             }
-            List<String> imageUrls = new ArrayList<>();
+            List<RoomImageResponse> images = new ArrayList<>();
             if(req.getImages() != null){
                 roomImagesDAO.deleteByRoomType_TypeId(id);
                 rt.setImages(new ArrayList<>());
@@ -205,13 +217,23 @@ public class RoomTypesService {
                     img.setImageUrl(url);
                     img.setRoomType(rt);
                     newImages.add(img);
-                    imageUrls.add(url);
                 }
                 rt.setImages(newImages);
+                images = newImages.stream()
+                        .map(i -> new RoomImageResponse(
+                                i.getImageId(),
+                                i.getImageUrl()
+                        )).toList();
             }else{
-                imageUrls = rt.getImages() !=null
-                        ? rt.getImages().stream().map(RoomImages::getImageUrl).toList(): List.of();
+                images = rt.getImages() != null
+                        ? rt.getImages().stream()
+                        .map(i -> new RoomImageResponse(
+                                i.getImageId(),
+                                i.getImageUrl()
+                        )).toList()
+                        : List.of();
             }
+
             List<Integer> branchIds = new ArrayList<>();
 
             if (req.getBranchIds() != null) {
@@ -255,7 +277,7 @@ public class RoomTypesService {
                     .pricePeakSunday(updated.getPricePeakSunday())
                     .priceHour(updated.getPriceHour())
                     .capacity(updated.getCapacity())
-                    .images(imageUrls)
+                    .images(images)
                     .branchIds(branchIds)
                     .amenities(amenities)
                     .build();
@@ -275,9 +297,12 @@ public class RoomTypesService {
         RoomTypes updated = roomTypesDAO.save(rt);
 
         // map images
-        List<String> images = updated.getImages() != null
+        List<RoomImageResponse> images = updated.getImages() != null
                 ? updated.getImages().stream()
-                .map(RoomImages::getImageUrl)
+                .map(i -> new RoomImageResponse(
+                        i.getImageId(),
+                        i.getImageUrl()
+                ))
                 .toList()
                 : List.of();
         List<AmenityResponse> amenities = rt.getAmenities() != null
