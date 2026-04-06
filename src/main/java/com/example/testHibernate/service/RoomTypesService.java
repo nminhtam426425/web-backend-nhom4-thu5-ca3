@@ -158,6 +158,35 @@ public class RoomTypesService {
                     a.getDescription()
             )).toList();
         }
+        savedRoomTypes = roomTypesDAO.save(savedRoomTypes);
+        Integer totalRooms = 0;
+        Double revenue = 0.0;
+        List<RoomResponse> roomResponses = new ArrayList<>();
+        if(!branchIds.isEmpty()){
+            Integer branchId = branchIds.get(0);
+            totalRooms = roomsDAO.countRoomsByTypeAndBranch(
+                    savedRoomTypes.getTypeId(),
+                    branchId
+            );
+            revenue = roomTypesDAO.getRevenueByTypeAndBranch(
+                    savedRoomTypes.getTypeId(), branchId,
+                    BookingStatus.CHECKOUT
+            );
+            List<Rooms> rooms = roomsDAO
+                    .findByRoomTypes_TypeIdAndBranch_BranchId(
+                            savedRoomTypes.getTypeId(),
+                            branchId
+                    );
+            roomResponses = rooms.stream().map(
+                    r -> RoomResponse.builder()
+                            .id(r.getRoomId())
+                            .numberRoom(r.getRoomNumber())
+                            .status(r.getStatus())
+                            .checkIn("-")
+                            .checkOut("-")
+                            .build()
+            ).toList();
+        }
         return RoomTypeResponse.builder()
                 .typeId(savedRoomTypes.getTypeId())
                 .typeName(savedRoomTypes.getTypeName())
@@ -171,6 +200,9 @@ public class RoomTypesService {
                 .images(images)
                 .branchIds(branchIds)
                 .amenities(amenities)
+                .totalRooms(totalRooms)
+                .revenue(revenue)
+                .rooms(roomResponses)
                 .build();
     }
         @Transactional
@@ -238,7 +270,8 @@ public class RoomTypesService {
 
             if (req.getBranchIds() != null) {
                 List<Branches> branches = branchesDAO.findAllById(req.getBranchIds());
-                rt.setBranches(branches);
+                rt.getBranches().clear();
+                rt.getBranches().addAll(branches);
 
                 branchIds = branches.stream()
                         .map(Branches::getBranchId)
@@ -251,7 +284,8 @@ public class RoomTypesService {
             List<AmenityResponse> amenities = new ArrayList<>();
             if(req.getAmenities() != null){
                 List<Amenities> amenitiesList = amenitiesDAO.findAllById(req.getAmenities());
-                rt.setAmenities(amenitiesList);
+                rt.getAmenities().clear();
+                rt.getAmenities().addAll(amenitiesList);
                 amenities = amenitiesList.stream()
                         .map(a -> new AmenityResponse(
                                 a.getIdAmenities(),

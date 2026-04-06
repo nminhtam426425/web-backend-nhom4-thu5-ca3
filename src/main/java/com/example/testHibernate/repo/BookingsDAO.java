@@ -1,8 +1,39 @@
 package com.example.testHibernate.repo;
 
 import com.example.testHibernate.entity.Bookings;
+import com.example.testHibernate.enums.BookingStatus;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 public interface BookingsDAO extends JpaRepository<Bookings,Integer>, JpaSpecificationExecutor<Bookings> {
+    @Query("SELECT COUNT(b) " +
+            "FROM Bookings b " +
+            "WHERE b.branch.branchId = :branchId " +
+            "AND b.status = :status " +
+            "AND b.checkInDate >= :startOfDay " +
+            "AND b.checkOutDate < :endOfDay")
+    Integer countCheckInDay(Integer branchId, BookingStatus status, LocalDateTime startOfDay,LocalDateTime endOfDay);
+    @Query("SELECT SUM(b.priceAtBooking) " +
+            "FROM Bookings b " +
+            "WHERE b.branch.branchId = :branchId " +
+            "AND b.status = :status " +
+            "AND b.checkInDate >= :startOfDay " +
+            "AND b.checkOutDate < :endOfDay")
+    Double sumRevenueByDate(
+            Integer branchId,
+            BookingStatus status,
+            LocalDateTime startOfDay,
+            LocalDateTime endOfDay
+    );
+    @Query("SELECT b " +
+            "FROM Bookings b " +
+            "WHERE b.branch.branchId = :branchId " +
+            "AND b.status = :status " +
+            "ORDER BY b.createdAt DESC")
+    List<Bookings> findTop5Customers(Integer branchId, BookingStatus status, Pageable pageable);
 }

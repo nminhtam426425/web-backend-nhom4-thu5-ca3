@@ -1,6 +1,7 @@
 package com.example.testHibernate.repo;
 
 import com.example.testHibernate.entity.Rooms;
+import com.example.testHibernate.enums.RoomStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,4 +16,7 @@ public interface RoomsDAO extends JpaRepository<Rooms,Integer> {
             "AND r.branch.branchId = :branchId")
     Integer countRoomsByTypeAndBranch(@Param("typeId") Integer typeId,@Param("branchId") Integer branchId);
     List<Rooms> findByRoomTypes_TypeIdAndBranch_BranchId(Integer typeId, Integer branchId);
+    Integer countByBranch_BranchId(Integer branchId);
+
+    Integer countByBranch_BranchIdAndStatus(Integer branchId, RoomStatus status);
 }
