@@ -1,6 +1,7 @@
 package com.example.testHibernate.entity;
 
 import com.example.testHibernate.enums.RoomStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -18,12 +19,14 @@ public class Rooms {
     private String roomNumber;
     @ManyToOne
     @JoinColumn(name = "type_id")
+    @JsonIgnore
     private RoomTypes roomTypes;
     @Column(name = "status")
     @Convert(converter = RoomStatusConverter.class)
     private RoomStatus status;
     @ManyToOne
     @JoinColumn(name = "branch_id")
+    @JsonIgnore
     private Branches branch;
     @ManyToMany
     @JoinTable(

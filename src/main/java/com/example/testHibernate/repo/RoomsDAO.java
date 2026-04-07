@@ -14,9 +14,9 @@ public interface RoomsDAO extends JpaRepository<Rooms,Integer> {
     @Query("SELECT COUNT(r) FROM Rooms r " +
             "WHERE r.roomTypes.typeId = :typeId " +
             "AND r.branch.branchId = :branchId")
-    Integer countRoomsByTypeAndBranch(@Param("typeId") Integer typeId,@Param("branchId") Integer branchId);
+    Long countRoomsByTypeAndBranch(@Param("typeId") Integer typeId,@Param("branchId") Integer branchId);
     List<Rooms> findByRoomTypes_TypeIdAndBranch_BranchId(Integer typeId, Integer branchId);
-    Integer countByBranch_BranchId(Integer branchId);
+    Long countByBranch_BranchId(Integer branchId);
 
-    Integer countByBranch_BranchIdAndStatus(Integer branchId, RoomStatus status);
+    Long countByBranch_BranchIdAndStatus(Integer branchId, RoomStatus status);
 }

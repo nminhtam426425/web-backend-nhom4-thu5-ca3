@@ -3,7 +3,7 @@ package com.example.testHibernate.dto;
 import lombok.Data;
 
 @Data
-public class BranchUpdateRequest {
+public class BranchRequest {
     private String branchName;
     private String address;
     private String phone;

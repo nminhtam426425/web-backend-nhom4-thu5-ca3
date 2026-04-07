@@ -47,16 +47,16 @@ public class DashboardService {
         if (totalRevenue == null) totalRevenue = 0.0;
 
         // 3. totalRoom
-        Integer totalRoom = roomsDAO.countByBranch_BranchId(branchId);
+        Long totalRoom = roomsDAO.countByBranch_BranchId(branchId);
 
         // 4. room status
-        Integer use = roomsDAO.countByBranch_BranchIdAndStatus(branchId, RoomStatus.CURRENTLY_OCCUPIED);
-        Integer needClean = roomsDAO.countByBranch_BranchIdAndStatus(branchId, RoomStatus.CLEARING_OUT);
-        Integer empty = roomsDAO.countByBranch_BranchIdAndStatus(branchId, RoomStatus.EMPTY);
+        Long use = roomsDAO.countByBranch_BranchIdAndStatus(branchId, RoomStatus.CURRENTLY_OCCUPIED);
+        Long needClean = roomsDAO.countByBranch_BranchIdAndStatus(branchId, RoomStatus.CLEARING_OUT);
+        Long empty = roomsDAO.countByBranch_BranchIdAndStatus(branchId, RoomStatus.EMPTY);
 
-        Integer totalRoomForUser = use; // đang dùng
+        Long totalRoomForUser = use; // đang dùng
 
-        Map<String, Integer> rooms = new HashMap<>();
+        Map<String,Long> rooms = new HashMap<>();
         rooms.put("use", use);
         rooms.put("needClean", needClean);
         rooms.put("empty", empty);

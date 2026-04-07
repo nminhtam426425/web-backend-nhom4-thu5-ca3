@@ -82,7 +82,7 @@ public class RoomTypesService {
                                     a.getDescription()
                             )).toList()
                             : List.of();
-                    Integer totalRooms = roomsDAO.countRoomsByTypeAndBranch(rt.getTypeId(),branchId);
+                    Long totalRooms = roomsDAO.countRoomsByTypeAndBranch(rt.getTypeId(),branchId);
                     Double revenue = roomTypesDAO.getRevenueByTypeAndBranch(
                             rt.getTypeId(),
                             branchId,
@@ -109,7 +109,7 @@ public class RoomTypesService {
                             .images(images)
                             .branchIds(branchIds)
                             .amenities(amenities)
-                            .totalRooms(totalRooms)
+                            .totalRooms(totalRooms != null ? totalRooms : 0L)
                             .revenue(revenue)
                             .rooms(roomResponses)
                             .build();
@@ -159,7 +159,7 @@ public class RoomTypesService {
             )).toList();
         }
         savedRoomTypes = roomTypesDAO.save(savedRoomTypes);
-        Integer totalRooms = 0;
+        Long totalRooms = 0L;
         Double revenue = 0.0;
         List<RoomResponse> roomResponses = new ArrayList<>();
         if(!branchIds.isEmpty()){

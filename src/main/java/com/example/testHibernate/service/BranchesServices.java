@@ -1,5 +1,6 @@
 package com.example.testHibernate.service;
 
+import com.example.testHibernate.dto.BranchRequest;
 import com.example.testHibernate.dto.BranchResponse;
 import com.example.testHibernate.dto.BranchUpdateRequest;
 import com.example.testHibernate.entity.Branches;
@@ -66,17 +67,61 @@ public class BranchesServices {
                     .build();
         }).toList();
     }
-    public Branches create(Branches b){
-        return repo.save(b);
+    public BranchResponse create(BranchRequest req){
+        if(req.getBranchName() == null || req.getBranchName().trim().isEmpty()){
+            throw new RuntimeException("Tên chi nhánh không được để trống");
+        }
+        Branches b = new Branches();
+        b.setBranchName(req.getBranchName());
+        b.setAddress(req.getAddress());
+        b.setPhone(req.getPhone());
+        b.setEmail(req.getEmail());
+        b.setDescription(req.getDescription());
+        b.setIsActive(req.getIsActive());
+        Branches savedBranches = repo.save(b);
+        return BranchResponse.builder()
+                .branchId(b.getBranchId())
+                .branchName(b.getBranchName())
+                .address(b.getAddress())
+                .phone(b.getPhone())
+                .email(b.getEmail())
+                .description(b.getDescription())
+                .isActive(b.getIsActive())
+                .rooms(0L) // mới tạo chưa có phòng
+                .build();
     }
-    public Branches update(Integer id,Branches newB){
+    public BranchResponse update(Integer id,Branches newB){
         Branches b = repo.findById(id).orElseThrow(()-> new RuntimeException("Not Found"));
-        b.setBranchName(newB.getBranchName());
-        b.setAddress(newB.getAddress());
-        b.setPhone(newB.getPhone());
-        b.setEmail(newB.getEmail());
-        b.setDescription(newB.getDescription());
-        return repo.save(b);
+        if(newB.getBranchName() != null){
+            b.setBranchName(newB.getBranchName());
+        }
+        if(newB.getAddress() != null){
+            b.setAddress(newB.getAddress());
+        }
+       if(newB.getPhone() != null) {
+           b.setPhone(newB.getPhone());
+       }
+       if(newB.getEmail() != null){
+           b.setEmail(newB.getEmail());
+       }
+        if(newB.getDescription() != null){
+            b.setDescription(newB.getDescription());
+        }
+        if(newB.getIsActive() != null){
+            b.setIsActive(newB.getIsActive());
+        }
+        repo.save(b);
+        Long totalRooms = roomsDAO.countByBranch_BranchId(b.getBranchId());
+        return BranchResponse.builder()
+                .branchId(b.getBranchId())
+                .branchName(b.getBranchName())
+                .address(b.getAddress())
+                .phone(b.getPhone())
+                .email(b.getEmail())
+                .description(b.getDescription())
+                .isActive(b.getIsActive())
+                .rooms(totalRooms != null ? totalRooms : 0L)
+                .build();
     }
     @Transactional
     public void delete(Integer id, Users currentUser){
@@ -97,8 +142,11 @@ public class BranchesServices {
         repo.save(b);
     }
 //    Hàm cập nhật thông tin cho chi nhánh
-    public Branches updateInfo(Integer id, BranchUpdateRequest req){
+    public BranchResponse updateInfo(Integer id, BranchUpdateRequest req){
         Branches b = repo.findById(id).orElseThrow(()-> new RuntimeException("Branch not found"));
+        if(req.getBranchName() != null){
+            b.setBranchName(req.getBranchName());
+        }
         if(req.getAddress() != null){
             b.setAddress(req.getAddress());
         }
@@ -111,6 +159,20 @@ public class BranchesServices {
         if(req.getDescription() != null){
             b.setDescription(req.getDescription());
         }
-        return  repo.save(b);
+        if(req.getIsActive() != null){
+            b.setIsActive(req.getIsActive());
+        }
+        repo.save(b);
+        Long totalRooms = roomsDAO.countByBranch_BranchId(b.getBranchId());
+            return BranchResponse.builder()
+                    .branchId(b.getBranchId())
+                    .branchName(b.getBranchName())
+                    .address(b.getAddress())
+                    .phone(b.getPhone())
+                    .email(b.getEmail())
+                    .description(b.getDescription())
+                    .isActive(b.getIsActive())
+                    .rooms(totalRooms != null ? totalRooms: 0L)
+                    .build();
     }
 }

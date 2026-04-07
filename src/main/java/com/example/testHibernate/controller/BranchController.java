@@ -1,5 +1,6 @@
 package com.example.testHibernate.controller;
 
+import com.example.testHibernate.dto.BranchRequest;
 import com.example.testHibernate.dto.BranchResponse;
 import com.example.testHibernate.dto.BranchUpdateRequest;
 import com.example.testHibernate.entity.Branches;
@@ -34,19 +35,19 @@ public class BranchController {
         return ResponseEntity.ok(branches);
     }
     @PostMapping
-    public ResponseEntity<Branches> create(@RequestBody Branches b,@RequestParam String userId)
+    public ResponseEntity<BranchResponse> create(@RequestBody BranchRequest b, @RequestParam String userId)
     {
         Users user = userDao.findById(userId).orElseThrow();
         if(user.getRoleId() != 1){
             throw new RuntimeException("Chỉ admin mới cho tạo");
         }
-        Branches created = services.create(b);
+        BranchResponse created = services.create(b);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Branches> update(@PathVariable Integer id,@RequestBody Branches b){
-        Branches updatedBranches = services.update(id,b);
+    public ResponseEntity<BranchResponse> update(@PathVariable Integer id,@RequestBody Branches b){
+        BranchResponse updatedBranches = services.update(id,b);
         return ResponseEntity.ok(updatedBranches);
     }
     @DeleteMapping("/{id}")
@@ -74,11 +75,11 @@ public class BranchController {
         return ResponseEntity.ok(new ApiResponse<>(null,200,"Đã ẩn chi nhánh có id "+id));
     }
     @PutMapping("/update-info/{id}")
-    public ApiResponse<Branches> updateInfo(
+    public ApiResponse<BranchResponse> updateInfo(
             @PathVariable Integer id,
             @RequestBody BranchUpdateRequest req
             ) {
-        Branches updatedB = services.updateInfo(id,req);
+        BranchResponse updatedB = services.updateInfo(id,req);
         return new ApiResponse<>(updatedB,200,"Cập nhật thành công chi nhánh có id "+id);
     }
 }

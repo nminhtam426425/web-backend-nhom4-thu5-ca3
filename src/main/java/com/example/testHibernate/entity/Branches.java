@@ -1,5 +1,6 @@
 package com.example.testHibernate.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,5 +37,6 @@ public class Branches {
     @Column(name = "is_active")
     private Boolean isActive = true;
     @ManyToMany(mappedBy = "branches")
+    @JsonIgnore
     private List<RoomTypes> roomTypes;
 }

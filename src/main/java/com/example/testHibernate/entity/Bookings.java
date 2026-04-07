@@ -1,11 +1,13 @@
 package com.example.testHibernate.entity;
 
 import com.example.testHibernate.enums.BookingStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "bookings")
@@ -50,5 +52,7 @@ public class Bookings {
     private String note;
     @Column(name = "created_at",insertable = false,updatable = false)
     private java.sql.Timestamp createdAt;
-
+    @OneToMany(mappedBy = "booking",fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<BookingDetails> bookingDetails;
 }

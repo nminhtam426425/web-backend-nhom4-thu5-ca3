@@ -36,4 +36,14 @@ public interface BookingsDAO extends JpaRepository<Bookings,Integer>, JpaSpecifi
             "AND b.status = :status " +
             "ORDER BY b.createdAt DESC")
     List<Bookings> findTop5Customers(Integer branchId, BookingStatus status, Pageable pageable);
+    @Query("SELECT b FROM Bookings b WHERE b.customer IS NOT NULL")
+    List<Bookings> findAllWithCustomer();
+    @Query("SELECT b FROM Bookings b " +
+            "LEFT JOIN FETCH b.bookingDetails bd " +
+            "LEFT JOIN FETCH bd.room " +
+            "WHERE b.customer.userId = :userId")
+    List<Bookings> findByCustomer_UserIdWithRoom(String userId);
+    List<Bookings> findByStatusOrderByCreatedAtDesc(BookingStatus status);
+    @Query("SELECT SUM(b.priceAtBooking) FROM Bookings b WHERE b.customer.userId = :userId")
+    Double sumPriceByCustomer(String userId);
 }

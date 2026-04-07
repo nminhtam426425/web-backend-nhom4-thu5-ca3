@@ -1,5 +1,6 @@
 package com.example.testHibernate.controller;
 
+import com.example.testHibernate.dto.AmenityResponse;
 import com.example.testHibernate.entity.Amenities;
 import com.example.testHibernate.service.AmenitiesService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,18 +17,18 @@ public class AmenityController {
     @Autowired
     private AmenitiesService amenitiesService;
     @GetMapping
-    public ResponseEntity<List<Amenities>>getAll(){
-        List<Amenities> amenities = amenitiesService.getAll();
+    public ResponseEntity<List<AmenityResponse>>getAll(){
+        List<AmenityResponse> amenities = amenitiesService.getAll();
         return ResponseEntity.ok(amenities);
     }
     @PostMapping
-    public ResponseEntity<Amenities>create(@RequestBody Amenities a){
-        Amenities createdAmenity = amenitiesService.create(a);
+    public ResponseEntity<AmenityResponse>create(@RequestBody Amenities a){
+        AmenityResponse createdAmenity = amenitiesService.create(a);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdAmenity);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Amenities>update(@PathVariable Integer id,@RequestBody Amenities a){
-        Amenities updatedAmenity = amenitiesService.update(id,a);
+    public ResponseEntity<AmenityResponse>update(@PathVariable Integer id,@RequestBody Amenities a){
+        AmenityResponse updatedAmenity = amenitiesService.update(id,a);
         return ResponseEntity.ok(updatedAmenity);
     }
     @DeleteMapping("/{id}")

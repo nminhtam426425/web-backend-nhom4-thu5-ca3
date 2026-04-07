@@ -1,5 +1,6 @@
 package com.example.testHibernate.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -36,8 +37,10 @@ public class RoomTypes {
             joinColumns = @JoinColumn(name = "id_room_type"),
             inverseJoinColumns = @JoinColumn(name = "id_branches")
     )
+    @JsonIgnore
     private List<Branches> branches;
     @OneToMany(mappedBy = "roomType",cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<RoomImages> images;
     @ManyToMany
     @JoinTable(
@@ -45,5 +48,6 @@ public class RoomTypes {
             joinColumns = @JoinColumn(name = "id_room"),
             inverseJoinColumns = @JoinColumn(name = "id_amenities")
     )
+    @JsonIgnore
     private List<Amenities> amenities;
 }

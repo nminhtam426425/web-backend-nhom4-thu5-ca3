@@ -1,5 +1,6 @@
 package com.example.testHibernate.service;
 
+import com.example.testHibernate.dto.AmenityResponse;
 import com.example.testHibernate.entity.Amenities;
 import com.example.testHibernate.repo.AmenitiesDAO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,18 +12,36 @@ import java.util.List;
 public class AmenitiesService {
     @Autowired
     AmenitiesDAO amenitiesDAO;
-    public List<Amenities>getAll(){
-        return amenitiesDAO.findAll();
+    private AmenityResponse toResponse(Amenities a){
+        return AmenityResponse.builder()
+                .idAmenities(a.getIdAmenities())
+                .description(a.getDescription())
+                .build();
     }
-    public Amenities create(Amenities a){
-        return amenitiesDAO.save(a);
+    public List<AmenityResponse>getAll(){
+        List<Amenities> amenities = amenitiesDAO.findAll();
+        return amenities.stream().map(
+                this::toResponse).toList();
     }
-    public Amenities update(Integer id,Amenities newA){
+    public AmenityResponse create(Amenities a){
+        if(a.getDescription() == null || a.getDescription().trim().isEmpty()){
+            throw  new RuntimeException("Mô tả không được để trống");
+        }
+        Amenities savedAmenities = amenitiesDAO.save(a);
+        return toResponse(savedAmenities);
+    }
+    public AmenityResponse update(Integer id,Amenities newA){
         Amenities a = amenitiesDAO.findById(id).orElseThrow(()->new RuntimeException("Amenity not found"));
-        a.setDescription(newA.getDescription());
-        return amenitiesDAO.save(a);
+        if(newA.getDescription() != null){
+            a.setDescription(newA.getDescription());
+        }
+        Amenities updatedAmenities = amenitiesDAO.save(a);
+        return toResponse(updatedAmenities);
     }
     public void delete(Integer id){
+        if(!amenitiesDAO.existsById(id)){
+            throw new RuntimeException("Amenity not found");
+        }
         amenitiesDAO.deleteById(id);
     }
 

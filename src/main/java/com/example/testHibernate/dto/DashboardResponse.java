@@ -16,10 +16,10 @@ import java.util.Map;
 public class DashboardResponse {
     private Integer branchId;
     private Integer totalCheckInToday;
-    private Integer totalRoomForUser;
-    private Integer totalRoom;
+    private Long totalRoomForUser;
+    private Long totalRoom;
     private Double totalRevenue;
-    private Map<String, Integer> rooms;
+    private Map<String, Long> rooms;
     private List<UserResponse> newCustomer;
     private List<Double> revenueLast7Day;
     private List<String> dayRevenue;

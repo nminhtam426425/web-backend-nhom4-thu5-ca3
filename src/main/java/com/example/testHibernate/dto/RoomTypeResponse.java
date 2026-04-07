@@ -22,7 +22,7 @@ public class RoomTypeResponse {
     private List<RoomImageResponse> images;
     private List<Integer> branchIds;
     private List<AmenityResponse> amenities;
-    private Integer totalRooms;
+    private Long totalRooms;
     private Double revenue;
     private List<RoomResponse> rooms;
 }
