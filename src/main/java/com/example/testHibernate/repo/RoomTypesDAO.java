@@ -17,4 +17,5 @@ public interface RoomTypesDAO extends JpaRepository<RoomTypes,Integer> {
             "AND b.branch.branchId = :branchId " +
             "AND b.status = :status")
     Double getRevenueByTypeAndBranch(@Param("typeId") Integer typeId, @Param("branchId") Integer branchId, @Param("status")BookingStatus status);
+    List<RoomTypes> findByAmenities_IdAmenities(Integer amenityId);
 }

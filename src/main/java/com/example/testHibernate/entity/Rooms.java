@@ -28,11 +28,11 @@ public class Rooms {
     @JoinColumn(name = "branch_id")
     @JsonIgnore
     private Branches branch;
-    @ManyToMany
-    @JoinTable(
-            name = "room_amenitites",
-            joinColumns = @JoinColumn(name = "id_room"),
-            inverseJoinColumns = @JoinColumn(name = "id_amenities")
-    )
-    private List<Amenities>amenitites;
+//    @ManyToMany
+//    @JoinTable(
+//            name = "room_amenitites",
+//            joinColumns = @JoinColumn(name = "id_room"),
+//            inverseJoinColumns = @JoinColumn(name = "id_amenities")
+//    )
+//    private List<Amenities>amenitites;
 }

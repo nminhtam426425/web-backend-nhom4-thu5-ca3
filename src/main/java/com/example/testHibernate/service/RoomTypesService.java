@@ -3,11 +3,13 @@ package com.example.testHibernate.service;
 import com.example.testHibernate.dto.*;
 import com.example.testHibernate.entity.*;
 import com.example.testHibernate.enums.BookingStatus;
+import com.example.testHibernate.enums.RoomStatus;
 import com.example.testHibernate.repo.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 @Service
@@ -24,6 +26,8 @@ public class RoomTypesService {
     private AmenitiesDAO amenitiesDAO;
     @Autowired
     private RoomsDAO roomsDAO;
+    @Autowired
+    private BookingsDAO bookingsDAO;
     @Transactional
     public List<RoomTypeResponse>getAll(){
         List<RoomTypes> roomTypes = roomTypesDAO.findAllWithImages();
@@ -91,11 +95,30 @@ public class RoomTypesService {
                     List<Rooms> rooms = roomsDAO
                             .findByRoomTypes_TypeIdAndBranch_BranchId(rt.getTypeId(), branchId);
 
-                    List<RoomResponse> roomResponses = rooms.stream().map(r ->
-                            RoomResponse.builder()
+                    List<RoomResponse> roomResponses = rooms.stream().map(r ->{
+                        LocalDateTime checkIn = null;
+                        LocalDateTime checkOut = null;
+
+                            List<Bookings> bookings = bookingsDAO.findByRoomIdAndStatuses(
+                                    r.getRoomId(),
+                                    List.of(BookingStatus.CHECKIN,BookingStatus.CHECKOUT)
+                            );
+                            if(!bookings.isEmpty()){
+                                Bookings b = bookings.get(0);
+                                checkIn = b.getActualCheckIn() != null
+                                        ? b.getActualCheckIn() : b.getCheckInDate();
+                                checkOut = b.getActualCheckOut() != null ?
+                                        b.getActualCheckOut() : b.getCheckOutDate() ;
+                            }
+
+                          return   RoomResponse.builder()
                                     .id(r.getRoomId())
                                     .numberRoom(r.getRoomNumber())
-                                    .status(r.getStatus()).checkIn("-").checkOut("-").build()).toList();
+                                    .status(r.getStatus())
+                                    .checkIn(checkIn)
+                                    .checkOut(checkOut)
+                                    .build();
+                                    }).toList();
                     return RoomTypeResponse.builder()
                             .typeId(rt.getTypeId())
                             .typeName(rt.getTypeName())
@@ -178,14 +201,34 @@ public class RoomTypesService {
                             branchId
                     );
             roomResponses = rooms.stream().map(
-                    r -> RoomResponse.builder()
-                            .id(r.getRoomId())
-                            .numberRoom(r.getRoomNumber())
-                            .status(r.getStatus())
-                            .checkIn("-")
-                            .checkOut("-")
-                            .build()
-            ).toList();
+                    r -> {
+                        LocalDateTime checkIn = null;
+                        LocalDateTime checkOut = null;
+
+                        List<Bookings> bookings = bookingsDAO.findByRoomIdAndStatuses(
+                                r.getRoomId(),
+                                List.of(BookingStatus.CHECKIN, BookingStatus.CHECKOUT)
+                        );
+
+                        if (!bookings.isEmpty()) {
+                            Bookings b = bookings.get(0);
+
+                            checkIn = b.getActualCheckIn() != null
+                                    ? b.getActualCheckIn()
+                                    : b.getCheckInDate();
+
+                            checkOut = b.getActualCheckOut() != null
+                                    ? b.getActualCheckOut()
+                                    : b.getCheckOutDate();
+                        }
+                       return RoomResponse.builder()
+                                .id(r.getRoomId())
+                                .numberRoom(r.getRoomNumber())
+                                .status(r.getStatus())
+                                .checkIn(checkIn)
+                                .checkOut(checkOut)
+                                .build();
+                    }).toList();
         }
         return RoomTypeResponse.builder()
                 .typeId(savedRoomTypes.getTypeId())

@@ -1,5 +1,6 @@
 package com.example.testHibernate.controller;
 
+import com.example.testHibernate.dto.BookingBranchResponse;
 import com.example.testHibernate.dto.BookingDetailResponse;
 import com.example.testHibernate.dto.BookingResponse;
 import com.example.testHibernate.dto.CustomerBookingResponse;
@@ -60,6 +61,25 @@ public class BookingController {
         return ApiResponse.<List<BookingResponse>>builder()
                 .code(1001)
                 .data(bookingsService.getByStatus(bookingStatus))
+                .build();
+    }
+    @GetMapping("/group-by-branch")
+    public ApiResponse<List<BookingBranchResponse>> getBookingsGroupByBranch(){
+        return ApiResponse.<List<BookingBranchResponse>>builder()
+                .code(200)
+                .data(bookingsService.getBookingsGroupByBranch())
+                .build();
+    }
+    @GetMapping("/branch-status")
+    public ApiResponse<List<BookingResponse>> getByBranchAndStatus(
+            @RequestParam Integer branchId,
+            @RequestParam String status){
+
+        BookingStatus bookingStatus = BookingStatus.fromValue(status);
+
+        return ApiResponse.<List<BookingResponse>>builder()
+                .code(200)
+                .data(bookingsService.filterBookings(branchId,null,bookingStatus,null,null))
                 .build();
     }
 }

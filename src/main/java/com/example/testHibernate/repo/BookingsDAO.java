@@ -15,21 +15,26 @@ public interface BookingsDAO extends JpaRepository<Bookings,Integer>, JpaSpecifi
             "FROM Bookings b " +
             "WHERE b.branch.branchId = :branchId " +
             "AND b.status = :status " +
-            "AND b.checkInDate >= :startOfDay " +
-            "AND b.checkOutDate < :endOfDay")
+            "AND b.actualCheckIn >= :startOfDay " +
+            "AND b.actualCheckIn < :endOfDay")
     Integer countCheckInDay(Integer branchId, BookingStatus status, LocalDateTime startOfDay,LocalDateTime endOfDay);
     @Query("SELECT SUM(b.priceAtBooking) " +
             "FROM Bookings b " +
             "WHERE b.branch.branchId = :branchId " +
             "AND b.status = :status " +
-            "AND b.checkInDate >= :startOfDay " +
-            "AND b.checkOutDate < :endOfDay")
+            "AND b.actualCheckOut >= :startOfDay " +
+            "AND b.actualCheckOut < :endOfDay")
     Double sumRevenueByDate(
             Integer branchId,
             BookingStatus status,
             LocalDateTime startOfDay,
             LocalDateTime endOfDay
     );
+    @Query("SELECT SUM(b.priceAtBooking) " +
+            "FROM Bookings b " +
+            "WHERE b.branch.branchId = :branchId " +
+            "AND b.status = :status")
+    Double sumTotalRevenue(Integer branchId, BookingStatus status);
     @Query("SELECT b " +
             "FROM Bookings b " +
             "WHERE b.branch.branchId = :branchId " +
@@ -46,4 +51,10 @@ public interface BookingsDAO extends JpaRepository<Bookings,Integer>, JpaSpecifi
     List<Bookings> findByStatusOrderByCreatedAtDesc(BookingStatus status);
     @Query("SELECT SUM(b.priceAtBooking) FROM Bookings b WHERE b.customer.userId = :userId")
     Double sumPriceByCustomer(String userId);
+    @Query("SELECT b FROM Bookings b " +
+            "JOIN b.bookingDetails bd " +
+            "WHERE bd.room.roomId = :roomId " +
+            "AND b.status IN :statuses " +
+            "ORDER BY b.actualCheckIn DESC")
+    List<Bookings> findByRoomIdAndStatuses(Integer roomId, List<BookingStatus> statuses);
 }

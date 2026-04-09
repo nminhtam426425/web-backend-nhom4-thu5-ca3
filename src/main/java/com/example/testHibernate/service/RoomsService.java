@@ -1,5 +1,6 @@
 package com.example.testHibernate.service;
 
+import com.example.testHibernate.dto.RoomCreateResponse;
 import com.example.testHibernate.dto.RoomRequest;
 import com.example.testHibernate.entity.Amenities;
 import com.example.testHibernate.entity.Branches;
@@ -22,13 +23,28 @@ public class RoomsService {
     @Autowired
     private BranchesDAO branchesDAO;
     @Autowired
-    private AmenitiesDAO amenitiesDAO;
-    @Autowired
     private RoomTypesDAO roomTypesDAO;
-    public List<Rooms> getAll(){
-        return  roomsDAO.findAll();
+    private RoomCreateResponse toResponse(Rooms r){
+        return RoomCreateResponse.builder()
+                .roomId(r.getRoomId())
+                .roomNumber(r.getRoomNumber())
+
+                .typeId(r.getRoomTypes() != null ? r.getRoomTypes().getTypeId() : null)
+                .typeName(r.getRoomTypes() != null ? r.getRoomTypes().getTypeName() : null)
+
+                .branchId(r.getBranch() != null ? r.getBranch().getBranchId() : null)
+                .branchName(r.getBranch() != null ? r.getBranch().getBranchName() : null)
+
+                .status(r.getStatus())
+                .build();
     }
-    public Rooms create(RoomRequest req){
+    public List<RoomCreateResponse> getAll(){
+        return  roomsDAO.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+    public RoomCreateResponse create(RoomRequest req){
         Rooms r = new Rooms();
         RoomTypes roomType = roomTypesDAO.findById(req.getTypeId()).orElseThrow(()-> new RuntimeException("RoomType not found"));
         r.setRoomNumber(req.getRoomNumber());
@@ -41,27 +57,38 @@ public class RoomsService {
         Branches branch = branchesDAO.findById(req.getBranchId())
                 .orElseThrow(()->new RuntimeException("Branch not found"));
             r.setBranch(branch);
-         if(req.getAmenityIds() != null){
-             List<Amenities> amenitites = amenitiesDAO.findAllById(req.getAmenityIds());
-             r.setAmenitites(amenitites);
-         }
-        return roomsDAO.save(r);
+        Rooms saved = roomsDAO.save(r);
+        return toResponse(saved);
     }
-    public Rooms update(Integer id,Rooms newRoom){
-        Rooms r = roomsDAO.findById(id).orElseThrow(()->new RuntimeException("Room not found"));
-        r.setRoomNumber(newRoom.getRoomNumber());
-        r.setBranch(newRoom.getBranch());
-        r.setRoomTypes(newRoom.getRoomTypes());
-        r.setStatus(newRoom.getStatus());
-        return roomsDAO.save(r);
+    public RoomCreateResponse update(Integer id,RoomRequest req){
+        Rooms r = roomsDAO.findById(id)
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+
+        if(req.getRoomNumber() != null){
+            r.setRoomNumber(req.getRoomNumber());
+        }
+
+        if(req.getTypeId() != null){
+            RoomTypes roomType = roomTypesDAO.findById(req.getTypeId())
+                    .orElseThrow(() -> new RuntimeException("RoomType not found"));
+            r.setRoomTypes(roomType);
+        }
+
+        if(req.getBranchId() != null){
+            Branches branch = branchesDAO.findById(req.getBranchId())
+                    .orElseThrow(() -> new RuntimeException("Branch not found"));
+            r.setBranch(branch);
+        }
+
+        if(req.getStatus() != null){
+            r.setStatus(RoomStatus.fromValue(req.getStatus()));
+        }
+
+        Rooms updated = roomsDAO.save(r);
+
+        return toResponse(updated);
     }
     public void delete(Integer id){
         roomsDAO.deleteById(id);
-    }
-    public Rooms updateAmenities(Integer roomId,List<Integer> amenityIds){
-        Rooms room = roomsDAO.findById(roomId).orElseThrow(()->new RuntimeException("Room not found"));
-        List<Amenities> amenitites = amenitiesDAO.findAllById(amenityIds);
-        room.setAmenitites(amenitites);
-        return roomsDAO.save(room);
     }
 }

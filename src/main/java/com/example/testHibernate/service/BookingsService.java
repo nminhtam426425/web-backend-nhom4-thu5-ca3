@@ -1,13 +1,9 @@
 package com.example.testHibernate.service;
 
 import com.example.testHibernate.dto.*;
-import com.example.testHibernate.entity.BookingDetails;
-import com.example.testHibernate.entity.Bookings;
-import com.example.testHibernate.entity.Users;
+import com.example.testHibernate.entity.*;
 import com.example.testHibernate.enums.BookingStatus;
-import com.example.testHibernate.repo.BookingsDAO;
-import com.example.testHibernate.repo.StaffsDAO;
-import com.example.testHibernate.repo.UsersDAO;
+import com.example.testHibernate.repo.*;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -25,6 +21,10 @@ public class BookingsService {
     private UsersDAO usersDAO;
     @Autowired
     private StaffsDAO staffsDAO;
+    @Autowired
+    private BranchesDAO branchesDAO;
+    @Autowired
+    private FeedbacksDAO feedbacksDAO;
     private UserResponse mapUser(Users u) {
         Double totalSpent = bookingsDAO.sumPriceByCustomer(u.getUserId());
         Integer branchId = staffsDAO.findById(u.getUserId()).map(staff -> staff.getBranchId())
@@ -107,13 +107,27 @@ public class BookingsService {
                             roomNumber = bd.getRoom().getRoomNumber();
                         }
                     }
+                    Feedbacks fb = null;
+                    if(b.getStatus() == BookingStatus.CHECKOUT){
+                        fb =  feedbacksDAO.findByBooking_BookingId(b.getBookingId());
+                    }
+
+
+                    Integer rating = null;
+                    String comment = null;
+
+                    if(fb != null){
+                        rating = fb.getRating();
+                        comment = fb.getComment();
+                    }
                     return RoomRentResponse.builder()
                             .bookingId(b.getBookingId())
                             .roomNumber(roomNumber)
                             .typeName(b.getRoomType() != null ? b.getRoomType().getTypeName() : null)
                             .checkIn(b.getCheckInDate())
                             .checkOut(b.getCheckOutDate())
-                            .rating(5)
+                            .rating(rating)
+                            .comment(comment)
                             .alreadySpent(b.getPriceAtBooking() != null ? b.getPriceAtBooking().doubleValue() :0)
                             .build();
                 }).toList();
@@ -142,6 +156,20 @@ public class BookingsService {
                     .map(Users::getFullName)
                     .orElse(null);
         }
+
+
+        FeedbackResponse feedbackResponse = null;
+
+    if(b.getStatus() == BookingStatus.CHECKOUT){
+        Feedbacks fb = feedbacksDAO.findByBooking_BookingId(b.getBookingId());
+
+        if(fb != null){
+            feedbackResponse = FeedbackResponse.builder()
+                    .rating(fb.getRating())
+                    .comment(fb.getComment())
+                    .build();
+        }
+    }
         return BookingDetailResponse.builder()
                 .name(u.getFullName())
                 .phone(u.getPhone())
@@ -160,10 +188,7 @@ public class BookingsService {
                 .dateOrder(b.getCreatedAt())
                 .dateConfirm(b.getCheckInDate()) // nếu có field confirm riêng thì đổi
 
-                .feedback(FeedbackResponse.builder()
-                        .rating(5)
-                        .comment("Tốt")
-                        .build())
+                .feedback(feedbackResponse)
 
                 .build();
     }
@@ -172,5 +197,35 @@ public class BookingsService {
                 .stream()
                 .map(this::toResponse)
                 .toList();
+    }
+    public List<BookingBranchResponse> getBookingsGroupByBranch() {
+
+        List<Branches> branches = branchesDAO.findAll();
+
+        return branches.stream().map(branch -> {
+
+            // lấy booking theo branch
+            List<Bookings> bookings = bookingsDAO.findAll(
+                    (root, query, cb) ->
+                            cb.equal(root.get("branch").get("branchId"), branch.getBranchId())
+            );
+
+            List<BookingResponse> bookingResponses = bookings.stream()
+                    .map(this::toResponse)
+                    .toList();
+
+            return BookingBranchResponse.builder()
+                    .branchId(branch.getBranchId())
+                    .branchName(branch.getBranchName())
+                    .address(branch.getAddress())
+                    .bookings(bookingResponses)
+                    .build();
+
+        }).toList();
+    }
+    public List<BookingResponse> getBookingsByBranchAndStatus(Integer branchId){
+        return bookingsDAO.findAll((root, query, cb) ->
+                cb.equal(root.get("branch").get("branchId"), branchId)
+        ).stream().map(this::toResponse).toList();
     }
 }

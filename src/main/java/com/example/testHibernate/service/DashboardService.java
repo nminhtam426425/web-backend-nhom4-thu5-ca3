@@ -37,11 +37,9 @@ public class DashboardService {
         );
 
         // 2. totalRevenue today
-        Double totalRevenue = bookingsDAO.sumRevenueByDate(
+        Double totalRevenue = bookingsDAO.sumTotalRevenue(
                 branchId,
-                BookingStatus.CHECKOUT,
-                startOfDay,
-                endOfDay
+                BookingStatus.CHECKOUT
         );
 
         if (totalRevenue == null) totalRevenue = 0.0;
@@ -53,8 +51,6 @@ public class DashboardService {
         Long use = roomsDAO.countByBranch_BranchIdAndStatus(branchId, RoomStatus.CURRENTLY_OCCUPIED);
         Long needClean = roomsDAO.countByBranch_BranchIdAndStatus(branchId, RoomStatus.CLEARING_OUT);
         Long empty = roomsDAO.countByBranch_BranchIdAndStatus(branchId, RoomStatus.EMPTY);
-
-        Long totalRoomForUser = use; // đang dùng
 
         Map<String,Long> rooms = new HashMap<>();
         rooms.put("use", use);
@@ -79,7 +75,7 @@ public class DashboardService {
         List<Double> revenueLast7Day = new ArrayList<>();
         List<String> dayRevenue = new ArrayList<>();
 
-        for (int i = 0; i < 7; i++) {
+        for (int i = 1; i <= 7; i++) {
             LocalDateTime dayStart = startOfDay.minusDays(i);
             LocalDateTime dayEnd = dayStart.plusDays(1);
 
@@ -101,7 +97,7 @@ public class DashboardService {
         return DashboardResponse.builder()
                 .branchId(branchId)
                 .totalCheckInToday(totalCheckInToday)
-                .totalRoomForUser(totalRoomForUser)
+                .totalRoomForUser(use)
                 .totalRoom(totalRoom)
                 .totalRevenue(totalRevenue)
                 .rooms(rooms)

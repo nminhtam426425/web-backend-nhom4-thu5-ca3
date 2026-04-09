@@ -2,6 +2,7 @@ package com.example.testHibernate.controller;
 
 import com.example.testHibernate.dto.AmenityResponse;
 import com.example.testHibernate.entity.Amenities;
+import com.example.testHibernate.response.ApiResponse;
 import com.example.testHibernate.service.AmenitiesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,19 +18,26 @@ public class AmenityController {
     @Autowired
     private AmenitiesService amenitiesService;
     @GetMapping
-    public ResponseEntity<List<AmenityResponse>>getAll(){
-        List<AmenityResponse> amenities = amenitiesService.getAll();
-        return ResponseEntity.ok(amenities);
+    public ApiResponse<List<AmenityResponse>> getAll(){
+        return ApiResponse.<List<AmenityResponse>>builder()
+                .code(200)
+                .data(amenitiesService.getAll())
+                .build();
     }
     @PostMapping
-    public ResponseEntity<AmenityResponse>create(@RequestBody Amenities a){
-        AmenityResponse createdAmenity = amenitiesService.create(a);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdAmenity);
+    public ApiResponse<AmenityResponse>create(@RequestBody Amenities a){
+       return ApiResponse.<AmenityResponse>builder()
+               .code(200)
+               .data(amenitiesService.create(a))
+               .build();
     }
     @PutMapping("/{id}")
-    public ResponseEntity<AmenityResponse>update(@PathVariable Integer id,@RequestBody Amenities a){
-        AmenityResponse updatedAmenity = amenitiesService.update(id,a);
-        return ResponseEntity.ok(updatedAmenity);
+    public ApiResponse<AmenityResponse>update(@PathVariable Integer id,@RequestBody Amenities a){
+        return ApiResponse.<AmenityResponse>
+                builder().
+                code(200)
+                .data(amenitiesService.update(id,a))
+                .build();
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<String>delete(@PathVariable Integer id){

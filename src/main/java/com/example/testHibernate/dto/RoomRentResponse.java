@@ -13,5 +13,6 @@ public class RoomRentResponse {
     private LocalDateTime checkIn;
     private LocalDateTime checkOut;
     private Integer rating;
+    private String comment;
     private Double alreadySpent;
 }

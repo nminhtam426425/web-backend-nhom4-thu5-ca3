@@ -2,7 +2,10 @@ package com.example.testHibernate.service;
 
 import com.example.testHibernate.dto.AmenityResponse;
 import com.example.testHibernate.entity.Amenities;
+import com.example.testHibernate.entity.RoomTypes;
 import com.example.testHibernate.repo.AmenitiesDAO;
+import com.example.testHibernate.repo.RoomTypesDAO;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +15,8 @@ import java.util.List;
 public class AmenitiesService {
     @Autowired
     AmenitiesDAO amenitiesDAO;
+    @Autowired
+    private RoomTypesDAO roomTypesDAO;
     private AmenityResponse toResponse(Amenities a){
         return AmenityResponse.builder()
                 .idAmenities(a.getIdAmenities())
@@ -38,11 +43,15 @@ public class AmenitiesService {
         Amenities updatedAmenities = amenitiesDAO.save(a);
         return toResponse(updatedAmenities);
     }
-    public void delete(Integer id){
-        if(!amenitiesDAO.existsById(id)){
-            throw new RuntimeException("Amenity not found");
+    @Transactional
+    public void delete(Integer id) {
+        Amenities amenity = amenitiesDAO.findById(id)
+                .orElseThrow(() -> new RuntimeException("Amenity not found"));
+        List<RoomTypes> roomTypes = roomTypesDAO.findByAmenities_IdAmenities(id);
+        for (RoomTypes rt : roomTypes) {
+            rt.getAmenities().remove(amenity);
         }
-        amenitiesDAO.deleteById(id);
+        roomTypesDAO.saveAll(roomTypes);
+        amenitiesDAO.delete(amenity);
     }
-
 }
