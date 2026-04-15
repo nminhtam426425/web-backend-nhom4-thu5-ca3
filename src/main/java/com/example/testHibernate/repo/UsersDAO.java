@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UsersDAO extends JpaRepository<Users, String> {
     boolean existsUsersByPhone(String phone);
@@ -17,6 +18,7 @@ public interface UsersDAO extends JpaRepository<Users, String> {
     @Query("SELECT COALESCE(SUM(b.priceAtBooking),0) " +
             "FROM Bookings b " +
             "WHERE b.customer.userId =:userId " +
-            "AND b.status = status")
+            "AND b.status = :status")
     Double getTotalSpentByUserId(@Param("userId") String userId, @Param("status") BookingStatus status);
+    Optional<Users> findByUsername(String username);
 }
