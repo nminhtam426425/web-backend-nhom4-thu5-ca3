@@ -36,11 +36,10 @@ public class AuthController {
             throw new RuntimeException("Sai mật khẩu");
         }
 
-        String role = "USER";
-        if (user.getRoleId() == 1) {
-            role = "ADMIN";
+        if (user.getRoleId() != 1) {
+            throw new RuntimeException("Bạn không có quyền đăng nhập vào trang này");
         }
-
+        String role = "ADMIN";
         String token = JwtUtils.generateToken(
                user.getUserId(),
                 role

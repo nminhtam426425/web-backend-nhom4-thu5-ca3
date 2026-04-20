@@ -58,9 +58,9 @@ public class DashboardService {
         rooms.put("empty", empty);
 
         // 5. newCustomer (top 5)
-        List<Bookings> bookings = bookingsDAO.findTop5Customers(
+        List<Bookings> bookings = bookingsDAO.findTop5NewCustomers(
                 branchId,
-                BookingStatus.CONFIRM,
+                Arrays.asList(BookingStatus.PENDING,BookingStatus.CHECKIN),
                 PageRequest.of(0, 5)
         );
 
@@ -68,6 +68,8 @@ public class DashboardService {
                 UserResponse.builder()
                         .userId(b.getCustomer().getUserId())
                         .fullName(b.getCustomer().getFullName())
+                        .roomTypeName(b.getRoomType().getTypeName())
+                        .checkIn(b.getActualCheckIn())
                         .build()
         ).toList();
 

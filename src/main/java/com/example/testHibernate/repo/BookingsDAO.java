@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,9 +39,9 @@ public interface BookingsDAO extends JpaRepository<Bookings,Integer>, JpaSpecifi
     @Query("SELECT b " +
             "FROM Bookings b " +
             "WHERE b.branch.branchId = :branchId " +
-            "AND b.status = :status " +
+            "AND b.status IN (:statuses) " +
             "ORDER BY b.createdAt DESC")
-    List<Bookings> findTop5Customers(Integer branchId, BookingStatus status, Pageable pageable);
+    List<Bookings> findTop5NewCustomers(@Param("branchId") Integer branchId,@Param("statuses") List<BookingStatus>  statuses, Pageable pageable);
     @Query("SELECT b FROM Bookings b WHERE b.customer IS NOT NULL")
     List<Bookings> findAllWithCustomer();
     @Query("SELECT b FROM Bookings b " +

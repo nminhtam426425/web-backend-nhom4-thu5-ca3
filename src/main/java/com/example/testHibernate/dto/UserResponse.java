@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,4 +22,6 @@ public class UserResponse {
     private Boolean isActive;
     private Double alreadySpent;
     private Integer branchId;
+    private String roomTypeName;   // thêm
+    private LocalDateTime checkIn; // thêm
 }
