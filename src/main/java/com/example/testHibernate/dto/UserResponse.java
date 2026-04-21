@@ -24,4 +24,5 @@ public class UserResponse {
     private Integer branchId;
     private String roomTypeName;   // thêm
     private LocalDateTime checkIn; // thêm
+    private String status; // thêm
 }

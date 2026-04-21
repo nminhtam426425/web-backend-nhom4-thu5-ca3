@@ -1,6 +1,7 @@
 package com.example.testHibernate.controller;
 
 import com.example.testHibernate.dto.DashboardResponse;
+import com.example.testHibernate.response.ApiResponse;
 import com.example.testHibernate.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,14 +18,10 @@ public class DashboardController {
     private DashboardService dashboardService;
 
     @GetMapping("/{branchId}")
-    public Map<String, Object> getDashboard(@PathVariable Integer branchId) {
-
-        DashboardResponse data = dashboardService.getDashboard(branchId);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 200);
-        response.put("data", data);
-
-        return response;
+    public ApiResponse<DashboardResponse> getDashboard(@PathVariable Integer branchId) {
+        return ApiResponse.<DashboardResponse>builder()
+                .data(dashboardService.getDashboard(branchId))
+                .code(200)
+                .build();
     }
 }

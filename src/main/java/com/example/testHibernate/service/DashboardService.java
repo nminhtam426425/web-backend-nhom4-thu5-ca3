@@ -60,7 +60,7 @@ public class DashboardService {
         // 5. newCustomer (top 5)
         List<Bookings> bookings = bookingsDAO.findTop5NewCustomers(
                 branchId,
-                Arrays.asList(BookingStatus.PENDING,BookingStatus.CHECKIN),
+                Arrays.asList(BookingStatus.PENDING,BookingStatus.CONFIRM),
                 PageRequest.of(0, 5)
         );
 
@@ -68,8 +68,13 @@ public class DashboardService {
                 UserResponse.builder()
                         .userId(b.getCustomer().getUserId())
                         .fullName(b.getCustomer().getFullName())
-                        .roomTypeName(b.getRoomType().getTypeName())
-                        .checkIn(b.getActualCheckIn())
+                        .roomTypeName(b.getRoomType() != null ? b.getRoomType().getTypeName() : null)
+                        .checkIn(
+                                b.getActualCheckIn() != null
+                                        ? b.getActualCheckIn()
+                                        : b.getCheckInDate()
+                        )
+                        .status(b.getStatus() != null ? b.getStatus().getValue() : null)
                         .build()
         ).toList();
 
@@ -106,6 +111,7 @@ public class DashboardService {
                 .newCustomer(newCustomer)
                 .revenueLast7Day(revenueLast7Day)
                 .dayRevenue(dayRevenue)
+
                 .build();
     }
 
