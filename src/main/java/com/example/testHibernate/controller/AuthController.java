@@ -37,7 +37,7 @@ public class AuthController {
         }
 
         if (user.getRoleId() != 1) {
-            throw new RuntimeException("Bạn không có quyền đăng nhập vào trang này");
+            throw new RuntimeException("Tài khoản không hợp lệ !");
         }
         String role = "ADMIN";
         String token = JwtUtils.generateToken(

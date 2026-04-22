@@ -11,7 +11,7 @@ public class JwtUtils {
     private static final String SECRET = "mysecretkeymysecretkeymysecretkey123";
     private static final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    private static final long ACCESS_EXP = 1000 * 60 * 15; // 15 phút
+    private static final long ACCESS_EXP = 1000 * 60 * 60*2; // 15 phút
     private static final long REFRESH_EXP = 1000 * 60 * 60 * 24; // 1 ngày
     public static String generateToken(String userId, String role) {
         return Jwts.builder()
